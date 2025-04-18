@@ -293,13 +293,13 @@ class Report:
       with open(self.filepath, "r") as f:
           full_html = f.read()
   
-      insert_block = f"""
+      full_html = f"""
       {content}
       <content></content>
       """
   
       # Replace the placeholder using a regular expression
-      full_html = re.sub(r"<content>\s*</content>", insert_block, full_html, flags=re.DOTALL)
+      full_html = full_html.replace("<content></content>", full_html)
   
       with open(self.filepath, "w") as f:
           f.write(full_html)
