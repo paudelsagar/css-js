@@ -1,14 +1,22 @@
+import os
 import re
 import requests
 import textwrap
+import random
 from datetime import datetime
 from typing import List, Optional, Union
 import numpy as np
 import pandas as pd
 
+import http.server
+import socketserver
+import webbrowser
+import threading
+
 from plotly.basedatatypes import BaseFigure as PlotlyFigure
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+
 
 def histogram_plot(df: pd.DataFrame, bins: Optional[int] = None,
                    default_col: Optional[str] = None) -> go.Figure:
@@ -222,7 +230,6 @@ def violin_subplot(df: pd.DataFrame, max_cols_per_row: int = 3,
     )
 
     return subplot_fig
-
 
 class Report:
     def __init__(self, title: str, author: str, data_source: str, objective: str,
@@ -485,3 +492,32 @@ class Report:
         """
         
         self.add_content(full_html)
+    
+    def run_server(self, port: Optional[int] = None) -> None:
+        """
+        Launches a local HTTP server to serve the report HTML file.
+
+        Args:
+            port (int, optional): The port number to run the server on. If None, a random port between 8000 and 8999 is used.
+        """
+        port = port or random.randint(8000, 8999)
+        directory, filename = os.path.split(os.path.abspath(self.filepath))
+        
+        class Handler(http.server.SimpleHTTPRequestHandler):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, directory=directory, **kwargs)
+        
+        def open_browser():
+            url = f"http://0.0.0.0:{port}/{filename}"
+            webbrowser.open_new_tab(url)
+
+        thread = threading.Thread(target=open_browser)
+        thread.start()
+
+        with socketserver.TCPServer(("", port), Handler) as httpd:
+            print(f"Serving '{filename}' at http://0.0.0.0:{port}")
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                print("Shutting down server.")
+                httpd.shutdown()
