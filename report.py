@@ -35,7 +35,6 @@ def histogram_plot(df: pd.DataFrame, bins: Optional[int] = None,
     Returns:
         go.Figure: A Plotly Figure object containing the histogram plot.
     """
-    
     if default_col is None:
         default_col = df.select_dtypes(include='number').columns.tolist()[0]
     
@@ -248,6 +247,8 @@ class Report:
             objective (str): Purpose or goal of the report.
             filepath (str, optional): Path to the HTML file to be created. Defaults to './eda-report.html'.
         """
+        global css_url, js_url
+                   
         self.filepath = filepath
                    
         css_content = requests.get(css_url).text
