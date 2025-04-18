@@ -3,8 +3,225 @@ import requests
 import textwrap
 from datetime import datetime
 from typing import List, Optional, Union
+import numpy as np
 import pandas as pd
+
 from plotly.basedatatypes import BaseFigure as PlotlyFigure
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+def histogram_plot(df: pd.DataFrame, bins: Optional[int] = None,
+                   default_col: Optional[str] = None) -> go.Figure:
+    """
+    Generates a histogram plot for a specified numerical column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing numerical data.
+        bins (Optional[int], optional): The number of bins for the histogram. Defaults to None.
+        default_col (Optional[str], optional): The column to plot. If not provided, the first numerical column is used.
+
+    Returns:
+        go.Figure: A Plotly Figure object containing the histogram plot.
+    """
+    
+    if default_col is None:
+        default_col = df.select_dtypes(include='number').columns.tolist()[0]
+    
+    # Create figure for Histogram
+    fig = go.Figure()
+
+    # Add Histogram trace
+    fig.add_trace(go.Histogram(x=df[default_col], name='Histogram', visible=True, nbinsx=bins))
+
+    # Column selector (dropdown)
+    column_dropdown = [
+        dict(label=col,
+             method='update',
+             args=[
+                 {'x': [df[col]]},  # Update the x-axis data for the histogram
+                 {'title': f'Distribution of {col}'}  # Update title for the selected column
+             ])
+        for col in df.select_dtypes(include='number').columns.tolist()
+    ]
+
+    column_selector = dict(
+        buttons=column_dropdown,
+        direction="down",
+        x=0.5, y=1.0,
+        pad={"r": 0, "t": -70},
+        xanchor="center",
+        yanchor="top"
+    )
+
+    # Update layout with only the column selector dropdown
+    fig.update_layout(
+        updatemenus=[column_selector],
+        title=f"Distribution of {default_col}",
+        height=500,
+        showlegend=False,
+        margin=dict(t=80)
+    )
+
+    return fig
+
+
+def violin_plot(df: pd.DataFrame, default_col: Optional[str] = None) -> go.Figure:
+    """
+    Generates a violin plot for a specified numerical column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing numerical data.
+        default_col (Optional[str], optional): The column to plot. If not provided, the first numerical column is used.
+
+    Returns:
+        go.Figure: A Plotly Figure object containing the violin plot.
+    """
+    
+    if default_col is None:
+        default_col = df.select_dtypes(include='number').columns.tolist()[0]
+    
+    # Create figure for Violinplot
+    fig = go.Figure()
+
+    # Add violin plot trace
+    fig.add_trace(go.Violin(
+        y=df[default_col], 
+        name='', 
+        visible=True, 
+        box_visible=True, 
+        meanline_visible=True
+    ))
+
+    # Column selector (dropdown)
+    column_dropdown = [
+        dict(label=col,
+             method='update',
+             args=[
+                 {'y': [df[col]]},
+                 {'title': f'Violin Plot of {col}'}
+             ])
+        for col in df.select_dtypes(include='number').columns.tolist()
+    ]
+
+    column_selector = dict(
+        buttons=column_dropdown,
+        direction="down",
+        x=0.5, y=1.0,
+        pad={"r": 0, "t": -70},
+        xanchor="center",
+        yanchor="top"
+    )
+
+    # Update layout with the column dropdown
+    fig.update_layout(
+        updatemenus=[column_selector],
+        title=f"Violin Plot of {default_col}",
+        height=500,
+        showlegend=False,
+        margin=dict(t=80)
+    )
+
+    return fig
+
+def histogram_subplot(df: pd.DataFrame, bins: Optional[int] = None, max_cols_per_row: int = 3,
+                      horizontal_spacing: float = 0.03, vertical_spacing: float = 0.1) -> go.Figure:
+    """
+    Generates a subplot of histograms for each numeric column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing numerical data.
+        bins (Optional[int], optional): The number of bins for the histograms. Defaults to None.
+        max_cols_per_row (int, optional): The maximum number of columns to display per row in the subplot. Defaults to 3.
+        horizontal_spacing (float, optional): The horizontal space between subplots. Defaults to 0.03.
+        vertical_spacing (float, optional): The vertical space between subplots. Defaults to 0.1.
+
+    Returns:
+        go.Figure: A Plotly Figure object containing the subplot of histograms.
+    """
+    
+    numeric_cols = df.select_dtypes(include='number').columns.tolist()
+    rows = int(np.ceil(len(numeric_cols) / max_cols_per_row))
+    cols = min(len(numeric_cols), max_cols_per_row)
+
+    # Create subplots
+    subplot_fig = make_subplots(
+        rows=rows, cols=cols,
+        subplot_titles=numeric_cols,
+        horizontal_spacing=horizontal_spacing, vertical_spacing=vertical_spacing)
+
+    # Add histogram trace for each numeric column
+    for i, col in enumerate(numeric_cols):
+        r = i // cols + 1
+        c = i % cols + 1
+        fig = go.Histogram(
+            x=df[col],
+            name="",
+            nbinsx=bins,
+            marker=dict(line=dict(width=0.5, color='gray'))
+        )
+        subplot_fig.add_trace(fig, row=r, col=c)
+
+    # Update layout for subplots
+    subplot_fig.update_layout(
+        height=300 * rows,
+        title_text="Distribution of All Numeric Features",
+        showlegend=False
+    )
+
+    return subplot_fig
+
+def violin_subplot(df: pd.DataFrame, max_cols_per_row: int = 3, 
+                   horizontal_spacing: float = 0.03, vertical_spacing: float = 0.08) -> go.Figure:
+    """
+    Generates a subplot of violin plots for each numeric column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing numerical data.
+        max_cols_per_row (int, optional): The maximum number of columns to display per row in the subplot. Defaults to 3.
+        horizontal_spacing (float, optional): The horizontal space between subplots. Defaults to 0.03.
+        vertical_spacing (float, optional): The vertical space between subplots. Defaults to 0.08.
+
+    Returns:
+        go.Figure: A Plotly Figure object containing the subplot of violin plots.
+    """
+    
+    numeric_cols = df.select_dtypes(include='number').columns.tolist()
+    rows = int(np.ceil(len(numeric_cols) / max_cols_per_row))
+    cols = min(len(numeric_cols), max_cols_per_row)
+
+    # Create subplots
+    subplot_fig = make_subplots(
+        rows=rows, cols=cols,
+        subplot_titles=numeric_cols,
+        horizontal_spacing=horizontal_spacing, vertical_spacing=vertical_spacing)
+
+    # Function to add violin trace with unique colors for each subplot
+    def add_violin_trace(col, row, col_num):
+        fig = go.Violin(
+            y=df[col],  # For violin plot, use 'y' data
+            name=col,  # You can keep this as col for legend or an empty string ""
+            box_visible=True,
+            meanline_visible=True
+        )
+        subplot_fig.add_trace(fig, row=row, col=col_num)
+
+        # Remove axis titles, but keep axis ticks
+        subplot_fig.update_xaxes(title_text='', showticklabels=False, row=row, col=col_num)
+
+    # Add violin plot for each numeric column, with a unique color for each subplot
+    for i, col in enumerate(numeric_cols):
+        r = i // cols + 1
+        c = i % cols + 1
+        add_violin_trace(col, r, c)
+
+    # Update layout to remove axis titles for all subplots
+    subplot_fig.update_layout(
+        height=300 * rows,
+        title_text="Violin Plot of All Numeric Features",
+        showlegend=False
+    )
+
+    return subplot_fig
 
 
 class Report:
