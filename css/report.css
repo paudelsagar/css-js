@@ -38,7 +38,7 @@ hr {
     gap: 12px;
 }
 
-.report-header h2 {
+.report-header .title {
     margin: 0;
     font-size: 22px;
     font-weight: 600;
