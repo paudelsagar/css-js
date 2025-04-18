@@ -284,24 +284,25 @@ class Report:
         self.add_content(report_info)
 
     def add_content(self, content: Union[str, None]) -> None:
-        """
-        Inserts the provided HTML content into the report by replacing the <content></content> placeholder.
-    
-        Args:
-            content (str): The HTML content to insert into the report.
-        """
-        with open(self.filepath, "r") as f:
-            full_html = f.read()
-
-        content = f"""
-        {content}
-        <content></content>
-        """
-        
-        full_html = re.sub(r"<content>\s*</content>", content, full_html)
-
-        with open(self.filepath, "w") as f:
-            f.write(full_html)
+      """
+      Inserts the provided HTML content into the report by replacing the <content></content> placeholder.
+  
+      Args:
+          content (str): The HTML content to insert into the report.
+      """
+      with open(self.filepath, "r") as f:
+          full_html = f.read()
+  
+      insert_block = f"""
+      {content}
+      <content></content>
+      """
+  
+      # Replace the placeholder using a regular expression
+      full_html = re.sub(r"<content>\s*</content>", insert_block, full_html, flags=re.DOTALL)
+  
+      with open(self.filepath, "w") as f:
+          f.write(full_html)
 
     def add_section(self, title: str, level: int = 1, icon: str = "📁",
                     return_html: bool = False) -> Union[None, str]:
