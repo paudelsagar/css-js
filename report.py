@@ -58,7 +58,7 @@ def histogram_plot(df: pd.DataFrame, bins: Optional[int] = None,
         buttons=column_dropdown,
         direction="down",
         x=0.5, y=1.0,
-        pad={"r": 0, "t": -70},
+        pad={"r": 0, "t": -40},
         xanchor="center",
         yanchor="top"
     )
@@ -117,7 +117,7 @@ def violin_plot(df: pd.DataFrame, default_col: Optional[str] = None) -> go.Figur
         buttons=column_dropdown,
         direction="down",
         x=0.5, y=1.0,
-        pad={"r": 0, "t": -70},
+        pad={"r": 0, "t": -40},
         xanchor="center",
         yanchor="top"
     )
