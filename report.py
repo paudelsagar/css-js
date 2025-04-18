@@ -17,6 +17,10 @@ from plotly.basedatatypes import BaseFigure as PlotlyFigure
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+# Configuration
+css_url = "https://raw.githubusercontent.com/paudelsagar/pyreport/refs/heads/main/css/report.css"
+js_url = "https://raw.githubusercontent.com/paudelsagar/pyreport/refs/heads/main/js/report.js"
+
 
 def histogram_plot(df: pd.DataFrame, bins: Optional[int] = None,
                    default_col: Optional[str] = None) -> go.Figure:
@@ -245,10 +249,7 @@ class Report:
             filepath (str, optional): Path to the HTML file to be created. Defaults to './eda-report.html'.
         """
         self.filepath = filepath
-
-        css_url = "https://raw.githubusercontent.com/paudelsagar/css-js/refs/heads/main/css/report.css"
-        js_url = "https://raw.githubusercontent.com/paudelsagar/css-js/refs/heads/main/js/report.js"
-
+                   
         css_content = requests.get(css_url).text
         js_content = requests.get(js_url).text
 
