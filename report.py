@@ -344,7 +344,7 @@ class Report:
         html = f"""
         <div class="report-header">
             <div class="title-bar">
-                <h2><span class="icon">📊</span> {title}</h2>
+                <div class="title"><span class="icon">📊</span> {title}</div>
                 <div class="meta">
                     <span><b>Date:</b> {datetime.today().strftime("%B %d, %Y %H:%M:%S")}</span>
                     <span><b>Data:</b> {data_source}</span>
