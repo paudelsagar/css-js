@@ -21,7 +21,6 @@ from plotly.subplots import make_subplots
 css_url = "https://raw.githubusercontent.com/paudelsagar/pyreport/refs/heads/main/css/report.css"
 js_url = "https://raw.githubusercontent.com/paudelsagar/pyreport/refs/heads/main/js/report.js"
 
-
 def histogram_plot(df: pd.DataFrame, bins: Optional[int] = None,
                    default_col: Optional[str] = None) -> go.Figure:
     """
@@ -246,9 +245,7 @@ class Report:
             data_source (str): Source of the data used in the report.
             objective (str): Purpose or goal of the report.
             filepath (str, optional): Path to the HTML file to be created. Defaults to './eda-report.html'.
-        """
-        global css_url, js_url
-                   
+        """      
         self.filepath = filepath
                    
         css_content = requests.get(css_url).text
@@ -285,25 +282,25 @@ class Report:
         self.add_content(report_info)
 
     def add_content(self, content: Union[str, None]) -> None:
-      """
-      Inserts the provided HTML content into the report by replacing the <content></content> placeholder.
-  
-      Args:
-          content (str): The HTML content to insert into the report.
-      """
-      with open(self.filepath, "r") as f:
-          full_html = f.read()
-  
-      content = f"""
-      {content}
-      <content></content>
-      """
+        """
+        Inserts the provided HTML content into the report by replacing the <content></content> placeholder.
 
-      # Replace the placeholder using a regular expression
-      full_html = full_html.replace("<content></content>", content)
-  
-      with open(self.filepath, "w") as f:
-          f.write(full_html)
+        Args:
+            content (str): The HTML content to insert into the report.
+        """
+        with open(self.filepath, "r") as f:
+            full_html = f.read()
+
+        content = f"""
+        {content}
+        <content></content>
+        """
+
+        # Replace the placeholder using a regular expression
+        full_html = full_html.replace("<content></content>", content)
+
+        with open(self.filepath, "w") as f:
+            f.write(full_html)
 
     def add_section(self, title: str, level: int = 1, icon: str = "📁",
                     return_html: bool = False) -> Union[None, str]:
