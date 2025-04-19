@@ -13,6 +13,7 @@ import socketserver
 import webbrowser
 import threading
 
+import altair as alt
 from plotly.basedatatypes import BaseFigure as PlotlyFigure
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -690,3 +691,84 @@ class Report:
         """
 
         self.add_content(full_html)
+    
+    def pairplot(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
+                 exclude_cols: Optional[List[str]] = None, columns_per_row: int = 6,
+                 max_plots: Optional[int] = None, width: int = 100, height: int = 100,
+                 mark_point_size: int = 1, mark_point_opacity: float = 0.8,
+                 return_html: bool = False) -> Optional[str]:
+        """
+        Generates a grid of scatter plots (pairplot) using Altair for combinations of numerical features
+        in the input DataFrame. Each feature is paired against all other features except itself.
+
+        Args:
+            df (pd.DataFrame): The input DataFrame containing the data to visualize.
+            include_cols (Optional[List[str]], optional): A list of specific numeric columns to include. 
+                If provided, only these columns will be used for plotting. Defaults to None.
+            exclude_cols (Optional[List[str]], optional): A list of columns to exclude from plotting.
+                Ignored if `include_cols` is provided. Defaults to None.
+            columns_per_row (int, optional): Number of scatter plots to display per row. Defaults to 6.
+            max_plots (Optional[int], optional): Maximum number of feature pairs to plot. Useful for large datasets. Defaults to None.
+            width (int, optional): Width of each subplot in pixels. Defaults to 100.
+            height (int, optional): Height of each subplot in pixels. Defaults to 100.
+            mark_point_size (int, optional): Size of each scatter point. Defaults to 1.
+            mark_point_opacity (float, optional): Opacity of each scatter point (0 to 1). Defaults to 0.8.
+            return_html (bool, optional): If True, returns the chart as an HTML string. Otherwise, shows it in a browser. Defaults to False.
+
+        Returns:
+            Optional[str]: An HTML string representation of the chart if `return_html` is True, otherwise None.
+        """
+
+        numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
+        if include_cols:
+            numeric_cols = [col for col in numeric_cols if col in include_cols]
+        elif exclude_cols:
+            numeric_cols = [col for col in numeric_cols if col not in exclude_cols]
+
+        # Generate feature pair combinations where each feature is paired with all others, skipping itself
+        pair_combos = []
+        for i in range(len(numeric_cols)):
+            for j in range(len(numeric_cols)):
+                pair_combos.append((numeric_cols[i], numeric_cols[j]))
+        
+        if max_plots:
+            pair_combos = pair_combos[:max_plots]
+
+        # Create scatter plots for each pair
+        charts = []
+        for y, x in pair_combos:
+            chart = alt.Chart(df).mark_point(size=mark_point_size, opacity=mark_point_opacity).encode(
+                x=alt.X(x, scale=alt.Scale(zero=False), axis=alt.Axis(titleFontWeight='normal')),
+                y=alt.Y(y, scale=alt.Scale(zero=False), axis=alt.Axis(titleFontWeight='normal')),
+            ).properties(
+                width=width,
+                height=height
+            )
+            charts.append(chart)
+        
+        # Arrange charts into a grid
+        pairplot_fig = alt.vconcat(*[
+            alt.hconcat(*charts[i: i+columns_per_row])
+            for i in range(0, len(charts), columns_per_row)
+        ])
+
+        # Create title chart aligned to the left
+        title_chart = alt.Chart(pd.DataFrame({'text': ['Pairplot of Numerical Features']})).mark_text(
+            align='left', x=0,
+            fontSize=20,
+            fontWeight='normal' # 'normal', 'bold', 'lighter', 'bolder', 100, 200, 300, 400, 500, 600, 700, 800, 900
+        ).encode(
+            text='text:N'
+        ).properties(
+            width=columns_per_row * width,
+            height=30
+        )
+
+        # Combine title and chart grid
+        final_plot = alt.vconcat(title_chart, pairplot_fig)
+
+        if return_html:
+            return final_plot.to_html(fullhtml=False, requirejs=False, inline=False,
+                                      embed_options={'renderer': 'svg'})
+
+        final_plot.show()
