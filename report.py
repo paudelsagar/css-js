@@ -801,7 +801,8 @@ class Report:
         final_plot = alt.vconcat(title_chart, pairplot_fig)
 
         if return_html:
+            # renderer: canvas, svg, png, json, none
             return final_plot.to_html(fullhtml=False, requirejs=False, inline=False,
-                                      embed_options={'renderer': 'svg'})
+                                      embed_options={'renderer': 'png'})
 
         final_plot.show()
