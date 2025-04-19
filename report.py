@@ -21,6 +21,8 @@ from plotly.subplots import make_subplots
 css_url = "https://raw.githubusercontent.com/paudelsagar/pyreport/refs/heads/main/css/report.css"
 js_url = "https://raw.githubusercontent.com/paudelsagar/pyreport/refs/heads/main/js/report.js"
 
+plotly_config = {'displaylogo': False}
+
 def histogram_plot(df: pd.DataFrame, bins: Optional[int] = None,
                    default_col: Optional[str] = None) -> go.Figure:
     """
@@ -433,15 +435,13 @@ class Report:
         if not isinstance(fig, PlotlyFigure):
             raise TypeError("fig must be a valid Plotly figure object (e.g., go.Figure)")
         
-        config={'displaylogo': False}
-        
         fig.update_layout(template="plotly_white",
                           title=dict(font=dict(size=20), xanchor="left", yanchor="top",
                                      x=0, y=0.97, pad={"l": 10}))
 
         full_html = f"""
         <div class="card">
-            {fig.to_html(full_html=False, include_plotlyjs=True, config=config)}
+            {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
             <div class="card-description">
                 <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
             </div>
@@ -548,7 +548,7 @@ class Report:
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
-                    {fig.to_html(full_html=False, include_plotlyjs=True, config=config)}
+                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
                     <div class="card-description">
                         <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
                     </div>
@@ -589,7 +589,7 @@ class Report:
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
-                    {fig.to_html(full_html=False, include_plotlyjs=True, config=config)}
+                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
                     <div class="card-description">
                         <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
                     </div>
@@ -630,7 +630,7 @@ class Report:
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
-                    {fig.to_html(full_html=False, include_plotlyjs=True, config=config)}
+                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
                     <div class="card-description">
                         <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
                     </div>
