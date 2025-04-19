@@ -30,6 +30,7 @@ Date: 2025-04-19
 
 import os
 import re
+import uuid
 import requests
 import textwrap
 import random
@@ -844,7 +845,8 @@ class Report:
 
         if return_html:
             # renderer: canvas, svg, png, json, none
-            return final_plot.to_html(fullhtml=False, requirejs=False, inline=False,
+            return final_plot.to_html(random_class=f"altair-{uuid.uuid4().hex}",
+                                      fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
 
         final_plot.show()
@@ -911,7 +913,8 @@ class Report:
         final_plot = alt.vconcat(title_chart, grid)
 
         if return_html:
-            return final_plot.to_html(fullhtml=False, requirejs=False, inline=False,
+            return final_plot.to_html(random_class=f"altair-{uuid.uuid4().hex}",
+                                      fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
 
         final_plot.show()
@@ -975,7 +978,8 @@ class Report:
         final_plot = alt.vconcat(title_chart, grid)
 
         if return_html:
-            return final_plot.to_html(fullhtml=False, requirejs=False, inline=False,
+            return final_plot.to_html(random_class=f"altair-{uuid.uuid4().hex}",
+                                      fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
 
         final_plot.show()
@@ -1043,7 +1047,8 @@ class Report:
         final_plot = alt.vconcat(title_chart, grid)
 
         if return_html:
-            return final_plot.to_html(fullhtml=False, requirejs=False, inline=False,
-                                      embed_options={'renderer': 'svg'})
+            return final_plot.to_html(random_class=f"altair-{uuid.uuid4().hex}",
+                                      fullhtml=False, requirejs=False, inline=False,
+                                      embed_options={'renderer': 'png'})
         
         final_plot.show()
