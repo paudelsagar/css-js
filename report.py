@@ -441,7 +441,8 @@ class Report:
             count_data['percentage'] = (count_data['count'] / total_count) * 100
 
             # Create the count plot (bar chart)
-            fig = px.bar(count_data, x=col, y='percentage', labels={'percentage': 'Percentage'})
+            fig = px.bar(count_data, x=col, y='percentage', name=f"Count Plot of {col}",
+                         labels={'percentage': 'Percentage'})
             
             # Use hover data to show the actual count
             fig.update_traces(hovertemplate=f'{col}: %{{x}}<br>Count: %{{customdata[0]}}<br>Percentage: %{{y}}%')
@@ -530,7 +531,7 @@ class Report:
 
             # Create a donut chart
             fig = px.pie(count_data, names=col, values='count',
-                         hole=0.4, title=f'Dunut Chart of {col}')
+                         hole=dunut_hole, title=f'Dunut Chart of {col}')
 
             fig.update_traces(
                 textinfo='percent',
@@ -540,7 +541,7 @@ class Report:
             fig.update_layout(
                 height=height,
                 template="plotly_white",
-                margin=dict(t=20, b=10, l=10, r=10),
+                margin=dict(t=50, b=10, l=10, r=10),
                 title=dict(font=dict(size=18, weight=500),
                            xanchor="left", yanchor="top",
                            x=0, y=0.97, pad={"l": 10}),
