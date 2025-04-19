@@ -44,7 +44,7 @@ import socketserver
 import webbrowser
 import threading
 
-from IPython.display import display, HTML
+from IPython.display import display, HTML, Markdown
 import altair as alt
 from plotly.basedatatypes import BaseFigure as PlotlyFigure
 import plotly.graph_objects as go
@@ -106,6 +106,8 @@ class Report:
         report_info = self._show_report_info(title, author, data_source, objective)
 
         self.add_content(report_info)
+        
+        display(Markdown(f"[View Report]({self.filepath})"))
 
     def add_content(self, content: Union[str, None]) -> None:
         """
