@@ -540,7 +540,7 @@ class Report:
         if not class_name:
             class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
             
-        numeric_cols = df.select_dtypes(include=["numeric"]).columns
+        numeric_cols = df.select_dtypes(include=["number"]).columns
 
         contents = ""
         for col in numeric_cols:
