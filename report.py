@@ -845,7 +845,7 @@ class Report:
 
         if return_html:
             # renderer: canvas, svg, png, json, none
-            return final_plot.to_html(random_class=f"altair-{uuid.uuid4().hex}",
+            return final_plot.to_html(output_div=f"altair-{uuid.uuid4().hex}",
                                       fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
 
@@ -913,7 +913,7 @@ class Report:
         final_plot = alt.vconcat(title_chart, grid)
 
         if return_html:
-            return final_plot.to_html(random_class=f"altair-{uuid.uuid4().hex}",
+            return final_plot.to_html(output_div=f"altair-{uuid.uuid4().hex}",
                                       fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
 
@@ -978,7 +978,7 @@ class Report:
         final_plot = alt.vconcat(title_chart, grid)
 
         if return_html:
-            return final_plot.to_html(random_class=f"altair-{uuid.uuid4().hex}",
+            return final_plot.to_html(output_div=f"altair-{uuid.uuid4().hex}",
                                       fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
 
@@ -1047,7 +1047,7 @@ class Report:
         final_plot = alt.vconcat(title_chart, grid)
 
         if return_html:
-            return final_plot.to_html(random_class=f"altair-{uuid.uuid4().hex}",
+            return final_plot.to_html(output_div=f"altair-{uuid.uuid4().hex}",
                                       fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
         
