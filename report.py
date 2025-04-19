@@ -547,14 +547,11 @@ class Report:
         for col in numeric_cols:
             fig = px.histogram(df, x=col, nbins=bins)
             fig.update_layout(height=height, template="plotly_white",
-                              margin=dict(t=10, b=20, l=10, r=10))
+                              margin=dict(t=20, b=10, l=10, r=10))
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
                     {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
-                    <div class="card-description">
-                        <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
-                    </div>
                 </div>
             </div>
             """
@@ -592,14 +589,11 @@ class Report:
         for col in numeric_cols:
             fig = px.box(df, y=col)
             fig.update_layout(height=height, template="plotly_white",
-                              margin=dict(t=10, b=10, l=10, r=20))
+                              margin=dict(t=20, b=10, l=10, r=10))
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
                     {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
-                    <div class="card-description">
-                        <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
-                    </div>
                 </div>
             </div>
             """
@@ -636,14 +630,11 @@ class Report:
         for col in numeric_cols:
             fig = px.violin(df, y=col, box=True, points="outliers")
             fig.update_layout(height=height, template="plotly_white",
-                              margin=dict(t=10, b=10, l=10, r=20))
+                              margin=dict(t=20, b=10, l=10, r=10))
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
                     {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
-                    <div class="card-description">
-                        <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
-                    </div>
                 </div>
             </div>
             """
