@@ -789,7 +789,7 @@ class Report:
 
         # Create title chart aligned to the left
         title_chart = alt.Chart(pd.DataFrame({'text': ['Pairplot of Numerical Features']})).mark_text(
-            align='left', x=0,
+            align='left', x=-50,
             fontSize=20,
             fontWeight='normal' # 'normal', 'bold', 'lighter', 'bolder', 100, 200, 300, 400, 500, 600, 700, 800, 900
         ).encode(
