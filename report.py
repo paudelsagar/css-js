@@ -530,7 +530,7 @@ class Report:
 
             # Create a donut chart
             fig = px.pie(count_data, names=col, values='count',
-                         hole=0.4, title=None)
+                         hole=0.4, title=f'Dunut Chart of {col}')
 
             fig.update_traces(
                 textinfo='percent',
@@ -541,6 +541,9 @@ class Report:
                 height=height,
                 template="plotly_white",
                 margin=dict(t=20, b=10, l=10, r=10),
+                title=dict(font=dict(size=18, weight=500),
+                           xanchor="left", yanchor="top",
+                           x=0, y=0.97, pad={"l": 10}),
                 showlegend=True
             )
 
