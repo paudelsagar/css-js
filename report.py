@@ -408,26 +408,27 @@ class Report:
                   height: int = 400, include_cols: Optional[List[str]] = None,
                   exclude_cols: Optional[List[str]] = None,
                   max_plots: Optional[int] = None, max_categories: int = 20,
-                  class_name: Optional[str] = None, show: bool = False) -> None:
+                  class_name: Optional[str] = None, return_html: bool = False) -> Optional[str]:
         """
-        Generates and inserts a grid of Plotly count plots (bar plots) for all categorical columns in the provided DataFrame.
+        Generates and renders a grid of Plotly count plots (bar charts) for categorical columns in the given DataFrame.
 
-        Each chart is embedded inside a styled HTML card, and all cards are arranged in a responsive grid layout.
+        Each chart shows the percentage distribution of categories and is embedded inside a styled HTML card. The full set of cards is wrapped in a responsive grid layout and rendered inline in a Jupyter Notebook. Optionally, the generated HTML can also be returned.
 
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
-            title (Optional[str]): The title of the grid of charts. Defaults to None.
-            height (int, optional): The height of each count plot chart in pixels. Defaults to 300.
-            include_cols (Optional[List[str]], optional): A list of column names to include in the count plots. If not provided, all categorical columns will be used.
-            exclude_cols (Optional[List[str]], optional): A list of column names to exclude from the count plots. If not provided, no columns will be excluded.
-            max_plots (Optional[int], optional): Maximum number of count plots to generate. If None, plot all available.
+            title (Optional[str]): Optional title displayed at the top of the grid of charts.
+            height (int, optional): The height (in pixels) of each count plot chart. Defaults to 400.
+            include_cols (Optional[List[str]], optional): Specific column names to include. If None, all object or categorical columns are used.
+            exclude_cols (Optional[List[str]], optional): Specific column names to exclude from plotting. Defaults to None.
+            max_plots (Optional[int], optional): The maximum number of count plots to generate. If None, plots all matching columns.
             max_categories (int, optional): Maximum number of categories to display in each count plot. Defaults to 20.
-            class_name (Optional[str], optional): CSS class for the outer container div of each count plot card. Defaults to "col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs".
-            show (bool, optional): If True, the plot will be displayed in a Jupyter notebook.
+            class_name (Optional[str], optional): CSS class name for each chart container. Defaults to a responsive Bootstrap-like layout.
+            return_html (bool, optional): If True, returns the generated HTML string instead of injecting it into the report.
 
         Returns:
-            None: The function modifies the HTML report by injecting new content via `self.add_content`.
+            Optional[str]: The generated HTML string if `return_html=True`; otherwise, returns None.
         """
+    
         if not class_name:
             class_name = "col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs"
         
@@ -494,39 +495,40 @@ class Report:
         </div>
         """
 
-        # Add the final content to your report
-        self.add_content(full_html)
-
-        if show:
-            self._render_in_notebook(full_html)
+        self._render_in_notebook(full_html)
+        
+        if return_html:
+            return full_html
    
     def donut(self, df: pd.DataFrame, title: Optional[str] = None,
               height: int = 400, include_cols: Optional[List[str]] = None,
               exclude_cols: Optional[List[str]] = None,
               dunut_hole: float = 0.4,
               max_plots: Optional[int] = None, max_categories: int = 20,
-              class_name: Optional[str] = None) -> None:
+              class_name: Optional[str] = None, return_html: bool = False) -> Optional[str]:
         """
-        Generates and inserts a grid of Plotly donut charts for all categorical columns in the provided DataFrame.
+        Generates and renders a grid of Plotly donut charts for categorical columns in the given DataFrame.
 
-        For each categorical column, a donut chart is created showing the distribution of category frequencies as percentages.
-        The charts are embedded within styled HTML cards and arranged in a responsive grid layout within the report.
+        For each categorical column, a donut (pie with a hole) chart is generated to display the distribution of values
+        as percentages. Charts are embedded within styled HTML cards and arranged in a responsive grid layout. Optionally,
+        the generated HTML can be returned instead of only rendering it in the notebook.
 
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
             title (Optional[str]): Optional title displayed above the grid of charts.
-            height (int, optional): Height of each donut chart in pixels. Defaults to 400.
-            include_cols (Optional[List[str]], optional): A list of categorical column names to include in the plots.
-                If not provided, all categorical columns will be used.
-            exclude_cols (Optional[List[str]], optional): A list of categorical column names to exclude from the plots.
+            height (int, optional): The height of each donut chart in pixels. Defaults to 400.
+            include_cols (Optional[List[str]], optional): A list of column names to include in the donut charts.
+                If not provided, all object or categorical columns will be used.
+            exclude_cols (Optional[List[str]], optional): A list of column names to exclude from the donut charts. Defaults to None.
             dunut_hole (float, optional): Size of the hole in the donut chart (0 for full pie, up to 1 for fully hollow). Defaults to 0.4.
-            max_plots (Optional[int], optional): Maximum number of donut charts to generate. If None, plots all available.
-            max_categories (int, optional): Maximum number of categories to display per chart. Others are excluded. Defaults to 20.
-            class_name (Optional[str], optional): CSS class for the outer container div of each chart card.
-                Controls layout responsiveness. Defaults to "col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs".
+            max_plots (Optional[int], optional): Maximum number of donut charts to generate. If None, plots all matching columns.
+            max_categories (int, optional): Maximum number of categories to display per chart. Defaults to 20.
+            class_name (Optional[str], optional): CSS class for the outer container of each donut chart card.
+                Controls layout responsiveness. Defaults to a responsive grid layout class.
+            return_html (bool, optional): If True, returns the generated HTML string instead of just rendering it in the notebook.
 
         Returns:
-            None: The method injects the generated donut charts into the HTML report via `self.add_content`.
+            Optional[str]: The generated HTML string if `return_html=True`; otherwise, returns None.
         """
         if not class_name:
             class_name = "col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs"
@@ -587,33 +589,37 @@ class Report:
         </div>
         """
 
-        self.add_content(full_html)
+        self._render_in_notebook(full_html)
+        
+        if return_html:
+            return full_html
 
-    def histogram(self, df: pd.DataFrame,
-                  title: Optional[str] = None,
-                  bins: Optional[int] = None,
-                  include_cols: Optional[List[str]] = None,
-                  exclude_cols: Optional[List[str]] = None,
-                  max_plots: Optional[int] = None,
-                  height: int = 300, class_name: Optional[str] = None) -> None:
+    def histogram(self, df: pd.DataFrame, title: Optional[str] = None,
+                  bins: Optional[int] = None, include_cols: Optional[List[str]] = None,
+                  exclude_cols: Optional[List[str]] = None, max_plots: Optional[int] = None, height: int = 300,
+                  class_name: Optional[str] = None, return_html: bool = False) -> Optional[str]:
         """
-        Generates and inserts a grid of Plotly histogram charts for all numeric columns in the provided DataFrame.
+        Generates and renders a grid of Plotly histogram charts for numeric columns in the given DataFrame.
 
-        Each chart is embedded inside a styled HTML card, and all cards are arranged in a responsive grid layout.
+        For each numeric column, a histogram is created to display the distribution of values. Each histogram is embedded
+        inside a styled HTML card and arranged in a responsive grid layout. Optionally, the generated HTML can be returned
+        for further use or export.
 
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
-            title (str, optional): The title of the histogram grid. Defaults to None.
-            bins (Optional[int], optional): Number of bins for the histograms. Defaults to Plotly's auto-binning.
-            include_cols (Optional[List[str]], optional): List of column names to include in the histogram.
-            exclude_cols (Optional[List[str]], optional): List of column names to exclude from the histogram.
-            max_plots (Optional[int], optional): Maximum number of histogram plots to generate. If None, plot all available.
-            height (int, optional): The height of each histogram chart in pixels. Defaults to 300.
-            class_name (Optional[str], optional): CSS class for the outer container div of each histogram card.
-                                                Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
+            title (Optional[str]): Optional title displayed above the grid of histogram charts.
+            bins (Optional[int], optional): Number of bins for each histogram. If None, Plotly determines bin size automatically.
+            include_cols (Optional[List[str]], optional): A list of numeric column names to include in the histograms.
+                If not provided, all numeric columns will be used.
+            exclude_cols (Optional[List[str]], optional): A list of numeric column names to exclude from the histograms.
+            max_plots (Optional[int], optional): Maximum number of histogram plots to generate. If None, plots all available.
+            height (int, optional): Height of each histogram chart in pixels. Defaults to 300.
+            class_name (Optional[str], optional): CSS class for the outer container of each histogram card.
+                Controls layout responsiveness. Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
+            return_html (bool, optional): If True, returns the generated HTML string instead of just rendering it in the notebook.
 
         Returns:
-            None: The function modifies the HTML report by injecting new content via `self.add_content`.
+            Optional[str]: The generated HTML string if `return_html=True`; otherwise, returns None.
         """
         if not class_name:
             class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
@@ -655,34 +661,37 @@ class Report:
         </div>
         """
 
-        self.add_content(full_html)
+        self._render_in_notebook(full_html)
         
-    def box(self, df: pd.DataFrame,
-            title: Optional[str] = None,
-            height: int = 300,
-            include_cols: Optional[List[str]] = None,
+        if return_html:
+            return full_html
+        
+    def box(self, df: pd.DataFrame, title: Optional[str] = None,
+            height: int = 300, include_cols: Optional[List[str]] = None,
             exclude_cols: Optional[List[str]] = None,
-            max_plots: Optional[int] = None,
-            class_name: Optional[str] = None) -> None:
+            max_plots: Optional[int] = None, class_name: Optional[str] = None,
+            return_html: bool = False) -> Optional[str]:
         """
-        Generates and inserts a grid of Plotly box plots for all numeric columns in the provided DataFrame.
+        Generates and renders a grid of Plotly box plots for numeric columns in the given DataFrame.
 
-        Each chart is embedded inside a styled HTML card, and all cards are arranged in a responsive grid layout.
+        Each box plot displays the distribution of values, highlighting medians, quartiles, and potential outliers. 
+        The plots are embedded inside styled HTML cards and organized into a responsive grid layout. 
+        Optionally, the resulting HTML string can be returned for further use or export.
 
         Args:
-            df (pd.DataFrame): The input DataFrame containing the data to visualize.
-            title (Optional[str], optional): The title of the grid. Defaults to None.
-            height (int, optional): The height of each box plot chart in pixels. Defaults to 300.
-            include_cols (Optional[List[str]], optional): A list of column names to include in the box
-            plots. If not provided, all numeric columns in the DataFrame will be used.
-            exclude_cols (Optional[List[str]], optional): A list of column names to exclude from the
-            box plots. If not provided, no columns will be excluded.
-            max_plots (Optional[int], optional): Maximum number of box plots to generate. If None, plot all available.
-            class_name (Optional[str], optional): CSS class for the outer container div of each box plot card.
-                                                Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
+            df (pd.DataFrame): The input DataFrame containing numeric data to visualize.
+            title (Optional[str], optional): Optional title displayed above the grid of box plots.
+            height (int, optional): Height of each box plot chart in pixels. Defaults to 300.
+            include_cols (Optional[List[str]], optional): A list of numeric column names to include in the plots.
+                If not provided, all numeric columns in the DataFrame will be used.
+            exclude_cols (Optional[List[str]], optional): A list of numeric column names to exclude from the plots.
+            max_plots (Optional[int], optional): Maximum number of box plots to generate. If None, plots all available.
+            class_name (Optional[str], optional): CSS class for the outer container div of each chart card.
+                Controls layout responsiveness. Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
+            return_html (bool, optional): If True, returns the generated HTML string instead of just rendering it in the notebook.
 
         Returns:
-            None: The function modifies the HTML report by injecting new content via `self.add_content`.
+            Optional[str]: The generated HTML string if `return_html=True`; otherwise, returns None.
         """
         if not class_name:
             class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
@@ -724,34 +733,36 @@ class Report:
         </div>
         """
 
-        self.add_content(full_html)
+        self._render_in_notebook(full_html)
+        
+        if return_html:
+            return full_html
     
-    def violin(self, df: pd.DataFrame,
-               title: Optional[str] = None,
-               height: int = 300,
-               include_cols: Optional[List[str]] = None,
-               exclude_cols: Optional[List[str]] = None,
-               max_plots: Optional[int] = None,
-               class_name: Optional[str] = None) -> None:
+    def violin(self, df: pd.DataFrame, title: Optional[str] = None,
+               height: int = 300, include_cols: Optional[List[str]] = None,
+               exclude_cols: Optional[List[str]] = None, max_plots: Optional[int] = None,
+               class_name: Optional[str] = None, return_html: bool = False) -> Optional[str]:
         """
-        Generates and inserts a grid of Plotly violin plots for all numeric columns in the provided DataFrame.
+        Generates and renders a grid of Plotly violin plots for numeric columns in the given DataFrame.
 
-        Each chart is embedded inside a styled HTML card, and all cards are arranged in a responsive grid layout.
+        Each violin plot shows the distribution of values along with an embedded box plot and individual outlier points.
+        The plots are embedded inside styled HTML cards and arranged in a responsive grid layout. 
+        Optionally, the resulting HTML string can be returned for further use or export.
 
         Args:
-            df (pd.DataFrame): The input DataFrame containing the data to visualize.
-            title (Optional[str]): The title of the grid of charts. Defaults to None.
-            height (int, optional): The height of each violin plot chart in pixels. Defaults to 300.
-            include_cols (Optional[List[str]], optional): A list of column names to include in the violin
-            plots. If not provided, all numeric columns in the DataFrame will be used.
-            exclude_cols (Optional[List[str]], optional): A list of column names to exclude from the
-            violin plots. If not provided, no columns will be excluded.
-            max_plots (Optional[int], optional): Maximum number of violin plots to generate. If None, plot all available.
-            class_name (Optional[str], optional): CSS class for the outer container div of each violin plot card.
-                                                Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
+            df (pd.DataFrame): The input DataFrame containing numeric data to visualize.
+            title (Optional[str], optional): Optional title displayed above the grid of violin plots.
+            height (int, optional): Height of each violin plot chart in pixels. Defaults to 300.
+            include_cols (Optional[List[str]], optional): A list of numeric column names to include in the plots.
+                If not provided, all numeric columns in the DataFrame will be used.
+            exclude_cols (Optional[List[str]], optional): A list of numeric column names to exclude from the plots.
+            max_plots (Optional[int], optional): Maximum number of violin plots to generate. If None, plots all available.
+            class_name (Optional[str], optional): CSS class for the outer container div of each chart card.
+                Controls layout responsiveness. Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
+            return_html (bool, optional): If True, returns the generated HTML string instead of just rendering it in the notebook.
 
         Returns:
-            None: The function modifies the HTML report by injecting new content via `self.add_content`.
+            Optional[str]: The generated HTML string if `return_html=True`; otherwise, returns None.
         """
         if not class_name:
             class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
@@ -793,7 +804,10 @@ class Report:
         </div>
         """
 
-        self.add_content(full_html)
+        self._render_in_notebook(full_html)
+        
+        if return_html:
+            return full_html
     
     def pairplot(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
                  exclude_cols: Optional[List[str]] = None, columns_per_row: int = 6,
@@ -870,13 +884,13 @@ class Report:
         # Combine title and chart grid
         final_plot = alt.vconcat(title_chart, pairplot_fig)
 
+        final_plot.show()
+        
         if return_html:
             # renderer: canvas, svg, png, json, none
             return final_plot.to_html(output_div=f"altair-{uuid.uuid4().hex}",
                                       fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
-
-        final_plot.show()
         
     def histoplot(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
                   exclude_cols: Optional[List[str]] = None, columns_per_row: int = 4,
@@ -939,12 +953,12 @@ class Report:
 
         final_plot = alt.vconcat(title_chart, grid)
 
+        final_plot.show()
+        
         if return_html:
             return final_plot.to_html(output_div=f"altair-{uuid.uuid4().hex}",
                                       fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
-
-        final_plot.show()
     
     def boxplot(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
                 exclude_cols: Optional[List[str]] = None, columns_per_row: int = 4,
@@ -1004,12 +1018,12 @@ class Report:
 
         final_plot = alt.vconcat(title_chart, grid)
 
+        final_plot.show()
+        
         if return_html:
             return final_plot.to_html(output_div=f"altair-{uuid.uuid4().hex}",
                                       fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
-
-        final_plot.show()
     
     def densityplot(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
                     exclude_cols: Optional[List[str]] = None, columns_per_row: int = 4,
@@ -1072,13 +1086,13 @@ class Report:
         )
 
         final_plot = alt.vconcat(title_chart, grid)
-
+        
+        final_plot.show()
+        
         if return_html:
             return final_plot.to_html(output_div=f"altair-{uuid.uuid4().hex}",
                                       fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
-        
-        final_plot.show()
     
     def run_server(self, port: Optional[int] = None) -> None:
         """
