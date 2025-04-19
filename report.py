@@ -511,7 +511,7 @@ class Report:
         """
         
         if card:
-            content += f"""
+            content = f"""
             <div class="card">
                 {content}
             </div>
