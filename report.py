@@ -74,7 +74,6 @@ def histogram_plot(df: pd.DataFrame, bins: Optional[int] = None,
 
     return fig
 
-
 def violin_plot(df: pd.DataFrame, default_col: Optional[str] = None) -> go.Figure:
     """
     Generates a violin plot for a specified numerical column in a DataFrame.
@@ -521,3 +520,128 @@ class Report:
             except KeyboardInterrupt:
                 print("Shutting down server.")
                 httpd.shutdown()
+    
+    def histogram(self, df: pd.DataFrame, bins: Optional[int] = None,
+                  class_name: Optional[str] = None) -> None:
+        """
+        Generates and inserts a grid of Plotly histogram charts for all numeric columns in the provided DataFrame.
+
+        Each chart is embedded inside a styled HTML card, and all cards are arranged in a responsive grid layout.
+
+        Args:
+            df (pd.DataFrame): The input DataFrame containing the data to visualize.
+            bins (Optional[int], optional): Number of bins for the histograms. Defaults to Plotly's auto-binning.
+            class_name (Optional[str], optional): CSS class for the outer container div of each histogram card.
+                                                Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
+
+        Returns:
+            None: The function modifies the HTML report by injecting new content via `self.add_content`.
+        """
+        if not class_name:
+            class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
+            
+        numeric_cols = df.select_dtypes(include=["numeric"]).columns
+
+        contents = ""
+        for col in numeric_cols:
+            fig = px.histogram(df, x=col, bins=bins)
+            contents + = f"""
+            <div class="{class_name}">
+                <div class="card">
+                    {fig.to_html(full_html=False, include_plotlyjs=True, config=config)}
+                    <div class="card-description">
+                        <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
+                    </div>
+                </div>
+            </div>
+            """
+
+        full_html = f"""
+        <div class="row">
+            {contents}
+        </div>
+        """
+
+        self.add_content(full_html)
+        
+    def box(self, df: pd.DataFrame, class_name: Optional[str] = None) -> None:
+        """
+        Generates and inserts a grid of Plotly box plots for all numeric columns in the provided DataFrame.
+
+        Each chart is embedded inside a styled HTML card, and all cards are arranged in a responsive grid layout.
+
+        Args:
+            df (pd.DataFrame): The input DataFrame containing the data to visualize.
+            class_name (Optional[str], optional): CSS class for the outer container div of each box plot card.
+                                                Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
+
+        Returns:
+            None: The function modifies the HTML report by injecting new content via `self.add_content`.
+        """
+        if not class_name:
+            class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
+            
+        numeric_cols = df.select_dtypes(include=["number"]).columns
+
+        contents = ""
+        for col in numeric_cols:
+            fig = px.box(df, y=col)
+            contents += f"""
+            <div class="{class_name}">
+                <div class="card">
+                    {fig.to_html(full_html=False, include_plotlyjs=True, config=config)}
+                    <div class="card-description">
+                        <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
+                    </div>
+                </div>
+            </div>
+            """
+
+        full_html = f"""
+        <div class="row">
+            {contents}
+        </div>
+        """
+
+        self.add_content(full_html)
+    
+    def violin(self, df: pd.DataFrame, class_name: Optional[str] = None) -> None:
+        """
+        Generates and inserts a grid of Plotly violin plots for all numeric columns in the provided DataFrame.
+
+        Each chart is embedded inside a styled HTML card, and all cards are arranged in a responsive grid layout.
+
+        Args:
+            df (pd.DataFrame): The input DataFrame containing the data to visualize.
+            class_name (Optional[str], optional): CSS class for the outer container div of each violin plot card.
+                                                Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
+
+        Returns:
+            None: The function modifies the HTML report by injecting new content via `self.add_content`.
+        """
+        if not class_name:
+            class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
+            
+        numeric_cols = df.select_dtypes(include=["number"]).columns
+
+        contents = ""
+        for col in numeric_cols:
+            fig = px.violin(df, y=col, box=True, points="outliers")
+            contents += f"""
+            <div class="{class_name}">
+                <div class="card">
+                    {fig.to_html(full_html=False, include_plotlyjs=True, config=config)}
+                    <div class="card-description">
+                        <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
+                    </div>
+                </div>
+            </div>
+            """
+
+        full_html = f"""
+        <div class="row">
+            {contents}
+        </div>
+        """
+
+        self.add_content(full_html)
