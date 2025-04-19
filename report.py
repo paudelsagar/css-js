@@ -1,3 +1,33 @@
+""" pyreport
+
+This module provides utilities for generating exploratory data analysis (EDA) visualizations
+using Altair for both numerical and categorical data. It supports clean, consistent, and 
+automated generation of plots such as:
+
+- Pair plots (scatter plot grids for numerical feature combinations)
+- Histograms
+- Box plots
+- Violin plots
+- Density plots
+- Count plots (for categorical features with optional percentage labels)
+
+Each visualization function allows for customization such as selecting specific columns,
+setting layout parameters (e.g., plots per row), limiting the number of plots or categories,
+and rendering the final output as an HTML string or interactive browser view.
+
+This module is useful for quickly summarizing patterns, distributions, and relationships 
+within a pandas DataFrame, and can be easily embedded into larger data profiling tools 
+or reporting workflows.
+
+Dependencies:
+    - numpy
+    - pandas
+    - altair
+
+Author: Sagar Paudel
+Date: 2025-04-19
+"""
+
 import os
 import re
 import requests
@@ -18,11 +48,15 @@ from plotly.basedatatypes import BaseFigure as PlotlyFigure
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+__version__ = "1.0.0"
+__author__ = "Sagar Paudel"
+
 # Configuration
 css_url = "https://raw.githubusercontent.com/paudelsagar/pyreport/refs/heads/main/css/report.css"
 js_url = "https://raw.githubusercontent.com/paudelsagar/pyreport/refs/heads/main/js/report.js"
 
 plotly_config = {'displaylogo': False}
+
 
 def histogram_plot(df: pd.DataFrame, bins: Optional[int] = None,
                    default_col: Optional[str] = None) -> go.Figure:
