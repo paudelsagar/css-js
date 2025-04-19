@@ -44,6 +44,7 @@ import socketserver
 import webbrowser
 import threading
 
+from IPython.display import display, HTML
 import altair as alt
 from plotly.basedatatypes import BaseFigure as PlotlyFigure
 import plotly.graph_objects as go
@@ -73,8 +74,8 @@ class Report:
         """      
         self.filepath = filepath
                    
-        css_content = requests.get(css_url).text
-        js_content = requests.get(js_url).text
+        self.css_content = requests.get(css_url).text
+        self.js_content = requests.get(js_url).text
 
         self.template = f"""
         <!DOCTYPE html>
@@ -85,7 +86,7 @@ class Report:
                 <meta name="author" content="{author}">
                 <title>{title}</title>
                 <style>
-                    {css_content}
+                    {self.css_content}
                 </style>
             </head>
             <body>
@@ -94,7 +95,7 @@ class Report:
                 </div>
             </body>
             <script>
-                {js_content}
+                {self.js_content}
             </script>
         </html>
         """
@@ -265,6 +266,25 @@ class Report:
         if return_html:
             return html
     
+    def _render_in_notebook(self, html_content: str) -> None:
+        """
+        Renders the current report content inline in a Jupyter Notebook,
+        including custom CSS and JS styles.
+        
+        Args:
+            html_content (str): The HTML content to be rendered.
+        """
+        full_render = f"""
+        <style>
+        {self.css_content}
+        </style>
+        {html_content}
+        <script>
+        {self.js_content}
+        </script>
+        """
+        display(HTML(full_render))
+    
     def add_dataframe(self, df: pd.DataFrame, title: Optional[str] = None,
                       max_rows: int = 20, max_height: int = 500,
                       return_html: bool = False, add_row: bool = True) -> Optional[str]:
@@ -388,7 +408,7 @@ class Report:
                   height: int = 400, include_cols: Optional[List[str]] = None,
                   exclude_cols: Optional[List[str]] = None,
                   max_plots: Optional[int] = None, max_categories: int = 20,
-                  class_name: Optional[str] = None) -> None:
+                  class_name: Optional[str] = None, show: bool = False) -> None:
         """
         Generates and inserts a grid of Plotly count plots (bar plots) for all categorical columns in the provided DataFrame.
 
@@ -403,6 +423,7 @@ class Report:
             max_plots (Optional[int], optional): Maximum number of count plots to generate. If None, plot all available.
             max_categories (int, optional): Maximum number of categories to display in each count plot. Defaults to 20.
             class_name (Optional[str], optional): CSS class for the outer container div of each count plot card. Defaults to "col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs".
+            show (bool, optional): If True, the plot will be displayed in a Jupyter notebook.
 
         Returns:
             None: The function modifies the HTML report by injecting new content via `self.add_content`.
@@ -475,6 +496,9 @@ class Report:
 
         # Add the final content to your report
         self.add_content(full_html)
+
+        if show:
+            self._render_in_notebook(full_html)
    
     def donut(self, df: pd.DataFrame, title: Optional[str] = None,
               height: int = 400, include_cols: Optional[List[str]] = None,
