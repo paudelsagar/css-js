@@ -385,10 +385,10 @@ class Report:
         self.add_content(full_html)
     
     def countplot(self, df: pd.DataFrame, title: Optional[str] = None,
-              height: int = 400, include_cols: Optional[List[str]] = None,
-              exclude_cols: Optional[List[str]] = None,
-              max_plots: Optional[int] = None, max_categories: int = 20,
-              class_name: Optional[str] = None) -> None:
+                  height: int = 400, include_cols: Optional[List[str]] = None,
+                  exclude_cols: Optional[List[str]] = None,
+                  max_plots: Optional[int] = None, max_categories: int = 20,
+                  class_name: Optional[str] = None) -> None:
         """
         Generates and inserts a grid of Plotly count plots (bar plots) for all categorical columns in the provided DataFrame.
 
@@ -436,13 +436,24 @@ class Report:
             if len(count_data) > max_categories:
                 count_data = count_data.head(max_categories)
 
+            # Calculate percentage for each category
+            total_count = count_data['count'].sum()
+            count_data['percentage'] = (count_data['count'] / total_count) * 100
+
             # Create the count plot (bar chart)
-            fig = px.bar(count_data, x=col, y='count', labels={'count': 'Frequency'})
+            fig = px.bar(count_data, x=col, y='percentage', labels={'percentage': 'Percentage'})
+            
+            # Use hover data to show the actual count
+            fig.update_traces(hovertemplate=f'{col}: %{{x}}<br>Count: %{{customdata[0]}}<br>Percentage: %{{y}}%')
+
+            # Add custom data for hover to display counts
+            fig.update_traces(customdata=count_data[['count']])
+
             fig.update_layout(height=height, template="plotly_white",
-                            title=dict(font=dict(size=18, weight=500),
-                                       xanchor="left", yanchor="top",
-                                       x=0, y=0.97, pad={"l": 10}),
-                            margin=dict(t=20, b=10, l=10, r=10))
+                              title=dict(font=dict(size=18, weight=500),
+                                         xanchor="left", yanchor="top",
+                                         x=0, y=0.97, pad={"l": 10}),
+                              margin=dict(t=20, b=10, l=10, r=10))
             
             # Add the chart HTML to the content
             contents += f"""
