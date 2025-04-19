@@ -58,218 +58,6 @@ js_url = "https://raw.githubusercontent.com/paudelsagar/pyreport/refs/heads/main
 
 plotly_config = {'displaylogo': False}
 
-
-def histogram_plot(df: pd.DataFrame, bins: Optional[int] = None,
-                   default_col: Optional[str] = None) -> go.Figure:
-    """
-    Generates a histogram plot for a specified numerical column in a DataFrame.
-
-    Args:
-        df (pd.DataFrame): The input DataFrame containing numerical data.
-        bins (Optional[int], optional): The number of bins for the histogram. Defaults to None.
-        default_col (Optional[str], optional): The column to plot. If not provided, the first numerical column is used.
-
-    Returns:
-        go.Figure: A Plotly Figure object containing the histogram plot.
-    """
-    if default_col is None:
-        default_col = df.select_dtypes(include='number').columns.tolist()[0]
-    
-    # Create figure for Histogram
-    fig = go.Figure()
-
-    # Add Histogram trace
-    fig.add_trace(go.Histogram(x=df[default_col], name='Histogram', visible=True, nbinsx=bins))
-
-    # Column selector (dropdown)
-    column_dropdown = [
-        dict(label=col,
-             method='update',
-             args=[
-                 {'x': [df[col]]},  # Update the x-axis data for the histogram
-                 {'title': f'Distribution of {col}'}  # Update title for the selected column
-             ])
-        for col in df.select_dtypes(include='number').columns.tolist()
-    ]
-
-    column_selector = dict(
-        buttons=column_dropdown,
-        direction="down",
-        x=0.5, y=1.0,
-        pad={"r": 0, "t": -40},
-        xanchor="center",
-        yanchor="top"
-    )
-
-    # Update layout with only the column selector dropdown
-    fig.update_layout(
-        updatemenus=[column_selector],
-        title=f"Distribution of {default_col}",
-        height=500,
-        showlegend=False,
-        margin=dict(t=80)
-    )
-
-    return fig
-
-def violin_plot(df: pd.DataFrame, default_col: Optional[str] = None) -> go.Figure:
-    """
-    Generates a violin plot for a specified numerical column in a DataFrame.
-
-    Args:
-        df (pd.DataFrame): The input DataFrame containing numerical data.
-        default_col (Optional[str], optional): The column to plot. If not provided, the first numerical column is used.
-
-    Returns:
-        go.Figure: A Plotly Figure object containing the violin plot.
-    """
-    
-    if default_col is None:
-        default_col = df.select_dtypes(include='number').columns.tolist()[0]
-    
-    # Create figure for Violinplot
-    fig = go.Figure()
-
-    # Add violin plot trace
-    fig.add_trace(go.Violin(
-        y=df[default_col], 
-        name='', 
-        visible=True, 
-        box_visible=True, 
-        meanline_visible=True
-    ))
-
-    # Column selector (dropdown)
-    column_dropdown = [
-        dict(label=col,
-             method='update',
-             args=[
-                 {'y': [df[col]]},
-                 {'title': f'Violin Plot of {col}'}
-             ])
-        for col in df.select_dtypes(include='number').columns.tolist()
-    ]
-
-    column_selector = dict(
-        buttons=column_dropdown,
-        direction="down",
-        x=0.5, y=1.0,
-        pad={"r": 0, "t": -40},
-        xanchor="center",
-        yanchor="top"
-    )
-
-    # Update layout with the column dropdown
-    fig.update_layout(
-        updatemenus=[column_selector],
-        title=f"Violin Plot of {default_col}",
-        height=500,
-        showlegend=False,
-        margin=dict(t=80)
-    )
-
-    return fig
-
-def histogram_subplot(df: pd.DataFrame, bins: Optional[int] = None, max_cols_per_row: int = 3,
-                      horizontal_spacing: float = 0.03, vertical_spacing: float = 0.1) -> go.Figure:
-    """
-    Generates a subplot of histograms for each numeric column in a DataFrame.
-
-    Args:
-        df (pd.DataFrame): The input DataFrame containing numerical data.
-        bins (Optional[int], optional): The number of bins for the histograms. Defaults to None.
-        max_cols_per_row (int, optional): The maximum number of columns to display per row in the subplot. Defaults to 3.
-        horizontal_spacing (float, optional): The horizontal space between subplots. Defaults to 0.03.
-        vertical_spacing (float, optional): The vertical space between subplots. Defaults to 0.1.
-
-    Returns:
-        go.Figure: A Plotly Figure object containing the subplot of histograms.
-    """
-    
-    numeric_cols = df.select_dtypes(include='number').columns.tolist()
-    rows = int(np.ceil(len(numeric_cols) / max_cols_per_row))
-    cols = min(len(numeric_cols), max_cols_per_row)
-
-    # Create subplots
-    subplot_fig = make_subplots(
-        rows=rows, cols=cols,
-        subplot_titles=numeric_cols,
-        horizontal_spacing=horizontal_spacing, vertical_spacing=vertical_spacing)
-
-    # Add histogram trace for each numeric column
-    for i, col in enumerate(numeric_cols):
-        r = i // cols + 1
-        c = i % cols + 1
-        fig = go.Histogram(
-            x=df[col],
-            name="",
-            nbinsx=bins,
-            marker=dict(line=dict(width=0.5, color='gray'))
-        )
-        subplot_fig.add_trace(fig, row=r, col=c)
-
-    # Update layout for subplots
-    subplot_fig.update_layout(
-        height=300 * rows,
-        title_text="Distribution of All Numeric Features",
-        showlegend=False
-    )
-
-    return subplot_fig
-
-def violin_subplot(df: pd.DataFrame, max_cols_per_row: int = 3, 
-                   horizontal_spacing: float = 0.03, vertical_spacing: float = 0.08) -> go.Figure:
-    """
-    Generates a subplot of violin plots for each numeric column in a DataFrame.
-
-    Args:
-        df (pd.DataFrame): The input DataFrame containing numerical data.
-        max_cols_per_row (int, optional): The maximum number of columns to display per row in the subplot. Defaults to 3.
-        horizontal_spacing (float, optional): The horizontal space between subplots. Defaults to 0.03.
-        vertical_spacing (float, optional): The vertical space between subplots. Defaults to 0.08.
-
-    Returns:
-        go.Figure: A Plotly Figure object containing the subplot of violin plots.
-    """
-    
-    numeric_cols = df.select_dtypes(include='number').columns.tolist()
-    rows = int(np.ceil(len(numeric_cols) / max_cols_per_row))
-    cols = min(len(numeric_cols), max_cols_per_row)
-
-    # Create subplots
-    subplot_fig = make_subplots(
-        rows=rows, cols=cols,
-        subplot_titles=numeric_cols,
-        horizontal_spacing=horizontal_spacing, vertical_spacing=vertical_spacing)
-
-    # Function to add violin trace with unique colors for each subplot
-    def add_violin_trace(col, row, col_num):
-        fig = go.Violin(
-            y=df[col],  # For violin plot, use 'y' data
-            name=col,  # You can keep this as col for legend or an empty string ""
-            box_visible=True,
-            meanline_visible=True
-        )
-        subplot_fig.add_trace(fig, row=row, col=col_num)
-
-        # Remove axis titles, but keep axis ticks
-        subplot_fig.update_xaxes(title_text='', showticklabels=False, row=row, col=col_num)
-
-    # Add violin plot for each numeric column, with a unique color for each subplot
-    for i, col in enumerate(numeric_cols):
-        r = i // cols + 1
-        c = i % cols + 1
-        add_violin_trace(col, r, c)
-
-    # Update layout to remove axis titles for all subplots
-    subplot_fig.update_layout(
-        height=300 * rows,
-        title_text="Violin Plot of All Numeric Features",
-        showlegend=False
-    )
-
-    return subplot_fig
-
 class Report:
     def __init__(self, title: str, author: str, data_source: str, objective: str,
                  filepath: str = "./eda-report.html") -> None:
@@ -314,7 +102,7 @@ class Report:
         with open(self.filepath, "w") as f:
             f.write(self.template)
 
-        report_info = self.show_report_info(title, author, data_source, objective)
+        report_info = self._show_report_info(title, author, data_source, objective)
 
         self.add_content(report_info)
 
@@ -368,128 +156,7 @@ class Report:
             return full_html
 
         self.add_content(full_html)
-             
-    def show_report_info(self, title: str, author: str, data_source: str,
-                         objective: str, return_html: bool = True) -> Optional[str]:
-        """
-        Displays or returns the HTML block for the report header containing basic metadata.
     
-        Args:
-            title (str): Title of the report.
-            author (str): Author name to be shown.
-            data_source (str): Source of the data.
-            objective (str): Goal or objective of the report.
-            return_html (bool, optional): If True, returns the HTML string; else only displays. Defaults to True.
-    
-        Returns:
-            Optional[str]: The HTML string if return_html is True; otherwise None.
-        """
-        
-        html = f"""
-        <div class="report-header">
-            <div class="title-bar">
-                <div class="title"><span class="icon">📊</span> {title}</div>
-                <div class="meta">
-                    <span><b>Date:</b> {datetime.today().strftime("%B %d, %Y %H:%M:%S")}</span>
-                    <span><b>Data:</b> {data_source}</span>
-                    <span><b>Author:</b> {author}</span>
-                    <span><b>Goal:</b> {objective}</span>
-                </div>
-            </div>
-        </div>
-        """
-        html = textwrap.dedent(html)
-        display(HTML(html))
-
-        if return_html:
-            return html
-    
-    def add_dataframe(self, df: pd.DataFrame, title: Optional[str] = None,
-                      max_rows: int = 20, max_height: int = 500,
-                      return_html: bool = False) -> Optional[str]:
-        """
-        Add a pandas DataFrame to the HTML report as a styled card component.
-    
-        Args:
-            df (pd.DataFrame): The DataFrame to be rendered.
-            title (Optional[str], optional): Optional title to display above the table. Defaults to None.
-            max_rows (int, optional): Maximum number of rows to display in the HTML table. Defaults to 20.
-            max_height (int, optional): Maximum height of the table container (scrolls if exceeded). Defaults to 500.
-            return_html (bool, optional): If True, returns the HTML string instead of adding to report content. Defaults to False.
-    
-        Returns:
-            Optional[str]: Rendered HTML string if return_html is True, else None.
-        """
-        
-        if not isinstance(df, pd.DataFrame):
-            raise TypeError("df must be a pandas DataFrame")
-            
-        # Generate the HTML table from the DataFrame
-        html_table = df.to_html(max_rows=max_rows, escape=False, index=False)
-
-        # Conditionally add title only if provided
-        title_html = (
-            f'<div class="card-header">{title}</div>'
-            if title else ""
-        )
-
-        # Combine the HTML template and the generated DataFrame table
-        full_html = f"""
-        <div class="card">
-            {title_html}
-            <div style="overflow: auto; max-height: {max_height}px;">
-                {html_table}
-            </div>
-            <div class="card-description">
-                <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
-            </div>
-        </div>
-        """
-        full_html = full_html.replace('\n', '').strip()
-
-        if return_html:
-            return full_html
-        
-        self.add_content(full_html)
-    
-    def add_plotly_figure(self, fig: PlotlyFigure, return_html: bool = False) -> Optional[str]:
-        """
-        Adds a Plotly figure to the report in a styled card layout.
-    
-        Args:
-            fig (BaseFigure): A valid Plotly figure (e.g., go.Figure).
-            return_html (bool, optional): If True, returns the HTML string instead of writing it to the file.
-                                          Defaults to False.
-    
-        Returns:
-            Optional[str]: The generated HTML string if `return_html` is True, otherwise None.
-    
-        Raises:
-            TypeError: If `fig` is not an instance of Plotly's BaseFigure.
-        """
-        
-        if not isinstance(fig, PlotlyFigure):
-            raise TypeError("fig must be a valid Plotly figure object (e.g., go.Figure)")
-        
-        fig.update_layout(template="plotly_white",
-                          title=dict(font=dict(size=18, weight=500), xanchor="left", yanchor="top",
-                                     x=0, y=0.97, pad={"l": 10}))
-
-        full_html = f"""
-        <div class="card">
-            {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
-            <div class="card-description">
-                <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
-            </div>
-        </div>
-        """
-
-        if return_html:
-            return full_html
-            
-        self.add_content(full_html)
-
-
     def add_row(self, contents: List[str], classes: Optional[Union[List[str], str]] = None) -> None:
         """
         Adds a row of HTML content to the report layout using Bootstrap-like column classes.
@@ -563,36 +230,137 @@ class Report:
         """
         self.add_content(full_html)
     
-    def run_server(self, port: Optional[int] = None) -> None:
+    def _show_report_info(self, title: str, author: str, data_source: str,
+                         objective: str, return_html: bool = True) -> Optional[str]:
         """
-        Launches a local HTTP server to serve the report HTML file.
-
-        Args:
-            port (int, optional): The port number to run the server on. If None, a random port between 8000 and 8999 is used.
-        """
-        port = port or random.randint(8000, 8999)
-        directory, filename = os.path.split(os.path.abspath(self.filepath))
-        
-        class Handler(http.server.SimpleHTTPRequestHandler):
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, directory=directory, **kwargs)
-        
-        def open_browser():
-            url = f"http://0.0.0.0:{port}/{filename}"
-            webbrowser.open_new_tab(url)
-
-        thread = threading.Thread(target=open_browser)
-        thread.start()
-
-        with socketserver.TCPServer(("", port), Handler) as httpd:
-            print(f"Serving '{filename}' at http://0.0.0.0:{port}")
-            try:
-                httpd.serve_forever()
-            except KeyboardInterrupt:
-                print("Shutting down server.")
-                httpd.shutdown()
+        Displays or returns the HTML block for the report header containing basic metadata.
     
-    def histogram(self, df: pd.DataFrame, bins: Optional[int] = None,
+        Args:
+            title (str): Title of the report.
+            author (str): Author name to be shown.
+            data_source (str): Source of the data.
+            objective (str): Goal or objective of the report.
+            return_html (bool, optional): If True, returns the HTML string; else only displays. Defaults to True.
+    
+        Returns:
+            Optional[str]: The HTML string if return_html is True; otherwise None.
+        """
+        
+        html = f"""
+        <div class="report-header">
+            <div class="title-bar">
+                <div class="title"><span class="icon">📊</span> {title}</div>
+                <div class="meta">
+                    <span><b>Date:</b> {datetime.today().strftime("%B %d, %Y %H:%M:%S")}</span>
+                    <span><b>Data:</b> {data_source}</span>
+                    <span><b>Author:</b> {author}</span>
+                    <span><b>Goal:</b> {objective}</span>
+                </div>
+            </div>
+        </div>
+        """
+        html = textwrap.dedent(html)
+        display(HTML(html))
+
+        if return_html:
+            return html
+    
+    def add_dataframe(self, df: pd.DataFrame, title: Optional[str] = None,
+                      max_rows: int = 20, max_height: int = 500,
+                      return_html: bool = False) -> Optional[str]:
+        """
+        Add a pandas DataFrame to the HTML report as a styled card component.
+    
+        Args:
+            df (pd.DataFrame): The DataFrame to be rendered.
+            title (Optional[str], optional): Optional title to display above the table. Defaults to None.
+            max_rows (int, optional): Maximum number of rows to display in the HTML table. Defaults to 20.
+            max_height (int, optional): Maximum height of the table container (scrolls if exceeded). Defaults to 500.
+            return_html (bool, optional): If True, returns the HTML string instead of adding to report content. Defaults to False.
+    
+        Returns:
+            Optional[str]: Rendered HTML string if return_html is True, else None.
+        """
+        
+        if not isinstance(df, pd.DataFrame):
+            raise TypeError("df must be a pandas DataFrame")
+            
+        # Generate the HTML table from the DataFrame
+        html_table = df.to_html(max_rows=max_rows, escape=False, index=False)
+
+        # Conditionally add title only if provided
+        title_html = (
+            f'<div class="card-header">{title}</div>'
+            if title else ""
+        )
+
+        # Combine the HTML template and the generated DataFrame table
+        full_html = f"""
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    {title_html}
+                    <div style="overflow: auto; max-height: {max_height}px;">
+                        {html_table}
+                    </div>
+                    <div class="card-description">
+                        <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        """
+        full_html = full_html.replace('\n', '').strip()
+
+        if return_html:
+            return full_html
+        
+        self.add_content(full_html)
+    
+    def add_plotly_figure(self, fig: PlotlyFigure, return_html: bool = False) -> Optional[str]:
+        """
+        Adds a Plotly figure to the report in a styled card layout.
+    
+        Args:
+            fig (BaseFigure): A valid Plotly figure (e.g., go.Figure).
+            return_html (bool, optional): If True, returns the HTML string instead of writing it to the file.
+                                          Defaults to False.
+    
+        Returns:
+            Optional[str]: The generated HTML string if `return_html` is True, otherwise None.
+    
+        Raises:
+            TypeError: If `fig` is not an instance of Plotly's BaseFigure.
+        """
+        
+        if not isinstance(fig, PlotlyFigure):
+            raise TypeError("fig must be a valid Plotly figure object (e.g., go.Figure)")
+        
+        fig.update_layout(template="plotly_white",
+                          title=dict(font=dict(size=18, weight=500), xanchor="left", yanchor="top",
+                                     x=0, y=0.97, pad={"l": 10}))
+
+        full_html = f"""
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                    <div class="card-description">
+                        <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        """
+
+        if return_html:
+            return full_html
+        
+        self.add_content(full_html)
+    
+    def histogram(self, df: pd.DataFrame,
+                  title: Optional[str] = None,
+                  bins: Optional[int] = None,
                   include_cols: Optional[List[str]] = None,
                   exclude_cols: Optional[List[str]] = None,
                   max_plots: Optional[int] = None,
@@ -604,6 +372,7 @@ class Report:
 
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
+            title (str, optional): The title of the histogram grid. Defaults to None.
             bins (Optional[int], optional): Number of bins for the histograms. Defaults to Plotly's auto-binning.
             include_cols (Optional[List[str]], optional): List of column names to include in the histogram.
             exclude_cols (Optional[List[str]], optional): List of column names to exclude from the histogram.
@@ -617,6 +386,12 @@ class Report:
         """
         if not class_name:
             class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
+            
+        # Conditionally add title only if provided
+        title_html = (
+            f'<div class="card-header">{title}</div>'
+            if title else ""
+        )
             
         numeric_cols = df.select_dtypes(include=["number"]).columns
         if include_cols:
@@ -644,13 +419,16 @@ class Report:
 
         full_html = f"""
         <div class="row">
+            {title_html}
             {contents}
         </div>
         """
 
         self.add_content(full_html)
         
-    def box(self, df: pd.DataFrame, height: int = 300,
+    def box(self, df: pd.DataFrame,
+            title: Optional[str] = None,
+            height: int = 300,
             include_cols: Optional[List[str]] = None,
             exclude_cols: Optional[List[str]] = None,
             max_plots: Optional[int] = None,
@@ -662,6 +440,7 @@ class Report:
 
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
+            title (Optional[str], optional): The title of the grid. Defaults to None.
             height (int, optional): The height of each box plot chart in pixels. Defaults to 300.
             include_cols (Optional[List[str]], optional): A list of column names to include in the box
             plots. If not provided, all numeric columns in the DataFrame will be used.
@@ -676,6 +455,12 @@ class Report:
         """
         if not class_name:
             class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
+        
+        # Conditionally add title only if provided
+        title_html = (
+            f'<div class="card-header">{title}</div>'
+            if title else ""
+        )
             
         numeric_cols = df.select_dtypes(include=["number"]).columns
         if include_cols:
@@ -703,13 +488,16 @@ class Report:
 
         full_html = f"""
         <div class="row">
+            {title_html}
             {contents}
         </div>
         """
 
         self.add_content(full_html)
     
-    def violin(self, df: pd.DataFrame, height: int = 300,
+    def violin(self, df: pd.DataFrame,
+               title: Optional[str] = None,
+               height: int = 300,
                include_cols: Optional[List[str]] = None,
                exclude_cols: Optional[List[str]] = None,
                max_plots: Optional[int] = None,
@@ -721,6 +509,7 @@ class Report:
 
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
+            title (Optional[str]): The title of the grid of charts. Defaults to None.
             height (int, optional): The height of each violin plot chart in pixels. Defaults to 300.
             include_cols (Optional[List[str]], optional): A list of column names to include in the violin
             plots. If not provided, all numeric columns in the DataFrame will be used.
@@ -735,6 +524,12 @@ class Report:
         """
         if not class_name:
             class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
+        
+        # Conditionally add title only if provided
+        title_html = (
+            f'<div class="card-header">{title}</div>'
+            if title else ""
+        )
             
         numeric_cols = df.select_dtypes(include=["number"]).columns
         if include_cols:
@@ -762,6 +557,7 @@ class Report:
 
         full_html = f"""
         <div class="row">
+            {title_html}
             {contents}
         </div>
         """
@@ -1052,3 +848,243 @@ class Report:
                                       embed_options={'renderer': 'png'})
         
         final_plot.show()
+    
+    def run_server(self, port: Optional[int] = None) -> None:
+        """
+        Launches a local HTTP server to serve the report HTML file.
+
+        Args:
+            port (int, optional): The port number to run the server on. If None, a random port between 8000 and 8999 is used.
+        """
+        port = port or random.randint(8000, 8999)
+        directory, filename = os.path.split(os.path.abspath(self.filepath))
+        
+        class Handler(http.server.SimpleHTTPRequestHandler):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, directory=directory, **kwargs)
+        
+        def open_browser():
+            url = f"http://0.0.0.0:{port}/{filename}"
+            webbrowser.open_new_tab(url)
+
+        thread = threading.Thread(target=open_browser)
+        thread.start()
+
+        with socketserver.TCPServer(("", port), Handler) as httpd:
+            print(f"Serving '{filename}' at http://0.0.0.0:{port}")
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                print("Shutting down server.")
+                httpd.shutdown()
+                
+def histogram_plot(df: pd.DataFrame, bins: Optional[int] = None,
+                   default_col: Optional[str] = None) -> go.Figure:
+    """
+    Generates a histogram plot for a specified numerical column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing numerical data.
+        bins (Optional[int], optional): The number of bins for the histogram. Defaults to None.
+        default_col (Optional[str], optional): The column to plot. If not provided, the first numerical column is used.
+
+    Returns:
+        go.Figure: A Plotly Figure object containing the histogram plot.
+    """
+    if default_col is None:
+        default_col = df.select_dtypes(include='number').columns.tolist()[0]
+    
+    # Create figure for Histogram
+    fig = go.Figure()
+
+    # Add Histogram trace
+    fig.add_trace(go.Histogram(x=df[default_col], name='Histogram', visible=True, nbinsx=bins))
+
+    # Column selector (dropdown)
+    column_dropdown = [
+        dict(label=col,
+             method='update',
+             args=[
+                 {'x': [df[col]]},  # Update the x-axis data for the histogram
+                 {'title': f'Distribution of {col}'}  # Update title for the selected column
+             ])
+        for col in df.select_dtypes(include='number').columns.tolist()
+    ]
+
+    column_selector = dict(
+        buttons=column_dropdown,
+        direction="down",
+        x=0.5, y=1.0,
+        pad={"r": 0, "t": -40},
+        xanchor="center",
+        yanchor="top"
+    )
+
+    # Update layout with only the column selector dropdown
+    fig.update_layout(
+        updatemenus=[column_selector],
+        title=f"Distribution of {default_col}",
+        height=500,
+        showlegend=False,
+        margin=dict(t=80)
+    )
+
+    return fig
+
+def violin_plot(df: pd.DataFrame, default_col: Optional[str] = None) -> go.Figure:
+    """
+    Generates a violin plot for a specified numerical column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing numerical data.
+        default_col (Optional[str], optional): The column to plot. If not provided, the first numerical column is used.
+
+    Returns:
+        go.Figure: A Plotly Figure object containing the violin plot.
+    """
+    
+    if default_col is None:
+        default_col = df.select_dtypes(include='number').columns.tolist()[0]
+    
+    # Create figure for Violinplot
+    fig = go.Figure()
+
+    # Add violin plot trace
+    fig.add_trace(go.Violin(
+        y=df[default_col], 
+        name='', 
+        visible=True, 
+        box_visible=True, 
+        meanline_visible=True
+    ))
+
+    # Column selector (dropdown)
+    column_dropdown = [
+        dict(label=col,
+             method='update',
+             args=[
+                 {'y': [df[col]]},
+                 {'title': f'Violin Plot of {col}'}
+             ])
+        for col in df.select_dtypes(include='number').columns.tolist()
+    ]
+
+    column_selector = dict(
+        buttons=column_dropdown,
+        direction="down",
+        x=0.5, y=1.0,
+        pad={"r": 0, "t": -40},
+        xanchor="center",
+        yanchor="top"
+    )
+
+    # Update layout with the column dropdown
+    fig.update_layout(
+        updatemenus=[column_selector],
+        title=f"Violin Plot of {default_col}",
+        height=500,
+        showlegend=False,
+        margin=dict(t=80)
+    )
+
+    return fig
+
+def histogram_subplot(df: pd.DataFrame, bins: Optional[int] = None, max_cols_per_row: int = 3,
+                      horizontal_spacing: float = 0.03, vertical_spacing: float = 0.1) -> go.Figure:
+    """
+    Generates a subplot of histograms for each numeric column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing numerical data.
+        bins (Optional[int], optional): The number of bins for the histograms. Defaults to None.
+        max_cols_per_row (int, optional): The maximum number of columns to display per row in the subplot. Defaults to 3.
+        horizontal_spacing (float, optional): The horizontal space between subplots. Defaults to 0.03.
+        vertical_spacing (float, optional): The vertical space between subplots. Defaults to 0.1.
+
+    Returns:
+        go.Figure: A Plotly Figure object containing the subplot of histograms.
+    """
+    
+    numeric_cols = df.select_dtypes(include='number').columns.tolist()
+    rows = int(np.ceil(len(numeric_cols) / max_cols_per_row))
+    cols = min(len(numeric_cols), max_cols_per_row)
+
+    # Create subplots
+    subplot_fig = make_subplots(
+        rows=rows, cols=cols,
+        subplot_titles=numeric_cols,
+        horizontal_spacing=horizontal_spacing, vertical_spacing=vertical_spacing)
+
+    # Add histogram trace for each numeric column
+    for i, col in enumerate(numeric_cols):
+        r = i // cols + 1
+        c = i % cols + 1
+        fig = go.Histogram(
+            x=df[col],
+            name="",
+            nbinsx=bins,
+            marker=dict(line=dict(width=0.5, color='gray'))
+        )
+        subplot_fig.add_trace(fig, row=r, col=c)
+
+    # Update layout for subplots
+    subplot_fig.update_layout(
+        height=300 * rows,
+        title_text="Distribution of All Numeric Features",
+        showlegend=False
+    )
+
+    return subplot_fig
+
+def violin_subplot(df: pd.DataFrame, max_cols_per_row: int = 3, 
+                   horizontal_spacing: float = 0.03, vertical_spacing: float = 0.08) -> go.Figure:
+    """
+    Generates a subplot of violin plots for each numeric column in a DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing numerical data.
+        max_cols_per_row (int, optional): The maximum number of columns to display per row in the subplot. Defaults to 3.
+        horizontal_spacing (float, optional): The horizontal space between subplots. Defaults to 0.03.
+        vertical_spacing (float, optional): The vertical space between subplots. Defaults to 0.08.
+
+    Returns:
+        go.Figure: A Plotly Figure object containing the subplot of violin plots.
+    """
+    
+    numeric_cols = df.select_dtypes(include='number').columns.tolist()
+    rows = int(np.ceil(len(numeric_cols) / max_cols_per_row))
+    cols = min(len(numeric_cols), max_cols_per_row)
+
+    # Create subplots
+    subplot_fig = make_subplots(
+        rows=rows, cols=cols,
+        subplot_titles=numeric_cols,
+        horizontal_spacing=horizontal_spacing, vertical_spacing=vertical_spacing)
+
+    # Function to add violin trace with unique colors for each subplot
+    def add_violin_trace(col, row, col_num):
+        fig = go.Violin(
+            y=df[col],  # For violin plot, use 'y' data
+            name=col,  # You can keep this as col for legend or an empty string ""
+            box_visible=True,
+            meanline_visible=True
+        )
+        subplot_fig.add_trace(fig, row=row, col=col_num)
+
+        # Remove axis titles, but keep axis ticks
+        subplot_fig.update_xaxes(title_text='', showticklabels=False, row=row, col=col_num)
+
+    # Add violin plot for each numeric column, with a unique color for each subplot
+    for i, col in enumerate(numeric_cols):
+        r = i // cols + 1
+        c = i % cols + 1
+        add_violin_trace(col, r, c)
+
+    # Update layout to remove axis titles for all subplots
+    subplot_fig.update_layout(
+        height=300 * rows,
+        title_text="Violin Plot of All Numeric Features",
+        showlegend=False
+    )
+
+    return subplot_fig
