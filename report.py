@@ -441,7 +441,7 @@ class Report:
             count_data['percentage'] = (count_data['count'] / total_count) * 100
 
             # Create the count plot (bar chart)
-            fig = px.bar(count_data, x=col, y='percentage', name=f"Count Plot of {col}",
+            fig = px.bar(count_data, x=col, y='percentage', title=f"Count Plot of {col}",
                          labels={'percentage': 'Percentage'})
             
             # Use hover data to show the actual count
