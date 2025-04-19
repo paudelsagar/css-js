@@ -31,6 +31,7 @@ Date: 2025-04-19
 import os
 import re
 import uuid
+import json
 import requests
 import textwrap
 import random
@@ -1483,6 +1484,96 @@ class Report:
         if return_html:
             return full_html
     
+    def pairplot2(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
+                exclude_cols: Optional[List[str]] = None, class_name: Optional[str] = None,
+                max_plots: Optional[int] = None, height: int = 200,
+                mark_point_size: int = 2,
+                return_html: bool = False) -> Optional[str]:
+        
+        if not class_name:
+            class_name = 'col-xl-3 col-lg-4 col-md-6 col-sm-12'
+
+        numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
+        if include_cols:
+            numeric_cols = [col for col in numeric_cols if col in include_cols]
+        elif exclude_cols:
+            numeric_cols = [col for col in numeric_cols if col not in exclude_cols]
+
+        pair_combos = []
+        for i in range(len(numeric_cols)):
+            for j in range(len(numeric_cols)):
+                pair_combos.append((numeric_cols[i], numeric_cols[j]))
+        
+        if max_plots:
+            pair_combos = pair_combos[:max_plots]
+
+        cards = []
+        for idx, (x, y) in enumerate(pair_combos):
+            container_id = f"highchart-{uuid.uuid4().hex}"
+            data = df[[x, y]].dropna().values.tolist()
+            js_data = json.dumps(data)
+
+            js_code = f"""
+            <div class="{class_name}">
+                <div class="card">
+                    <div id="{container_id}" style="width: 100%;"></div>
+                    <script>
+                    Highcharts.chart('{container_id}', {{
+                        chart: {{
+                            type: 'scatter',
+                            zoomType: 'xy',
+                            height: {height},
+                            margin: [10, 10, 50, 20],
+                            spacing: [0, 0, 0, 0]
+                        }},
+                        title: {{ text: null }},
+                        xAxis: {{
+                            title: {{ text: '{x}' }},
+                            startOnTick: true,
+                            endOnTick: true,
+                            showLastLabel: true
+                        }},
+                        yAxis: {{
+                            title: {{ text: '{y}' }}
+                        }},
+                        legend: {{ enabled: false }},
+                        tooltip: {{
+                            pointFormat: '{x}: {{point.x}}<br>{y}: {{point.y}}'
+                        }},
+                        plotOptions: {{
+                            scatter: {{
+                                marker: {{
+                                    radius: {mark_point_size},
+                                    symbol: 'circle',
+                                    states: {{
+                                        hover: {{
+                                            enabled: true,
+                                            lineColor: '#333'
+                                        }}
+                                    }}
+                                }}
+                            }}
+                        }},
+                        credits: {{ enabled: false }},
+                        series: [{{
+                            data: {js_data}
+                        }}]
+                    }});
+                    </script>
+                </div>
+            </div>
+            """
+            cards.append(js_code)
+
+        full_html = """
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <div class="row">
+        """ + "\n".join(cards) + "</div>"
+
+        self._render_in_notebook(full_html)
+        if return_html:
+            return full_html
+
     def histoplot(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
                   exclude_cols: Optional[List[str]] = None, columns_per_row: int = 4,
                   max_plots: Optional[int] = None, width: int = 200, height: int = 150,
