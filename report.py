@@ -522,6 +522,9 @@ class Report:
                 httpd.shutdown()
     
     def histogram(self, df: pd.DataFrame, bins: Optional[int] = None,
+                  include_cols: Optional[List[str]] = None,
+                  exclude_cols: Optional[List[str]] = None,
+                  max_plots: Optional[int] = None,
                   height: int = 300, class_name: Optional[str] = None) -> None:
         """
         Generates and inserts a grid of Plotly histogram charts for all numeric columns in the provided DataFrame.
@@ -531,6 +534,9 @@ class Report:
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
             bins (Optional[int], optional): Number of bins for the histograms. Defaults to Plotly's auto-binning.
+            include_cols (Optional[List[str]], optional): List of column names to include in the histogram.
+            exclude_cols (Optional[List[str]], optional): List of column names to exclude from the histogram.
+            max_plots (Optional[int], optional): Maximum number of histogram plots to generate. If None, plot all available.
             height (int, optional): The height of each histogram chart in pixels. Defaults to 300.
             class_name (Optional[str], optional): CSS class for the outer container div of each histogram card.
                                                 Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
@@ -542,6 +548,13 @@ class Report:
             class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
             
         numeric_cols = df.select_dtypes(include=["number"]).columns
+        if include_cols:
+            numeric_cols = include_cols
+        elif exclude_cols:
+            numeric_cols = [col for col in numeric_cols if col not in exclude_cols]
+            
+        if max_plots:
+            numeric_cols = numeric_cols[:max_plots]
 
         contents = ""
         for col in numeric_cols:
@@ -565,6 +578,9 @@ class Report:
         self.add_content(full_html)
         
     def box(self, df: pd.DataFrame, height: int = 300,
+            include_cols: Optional[List[str]] = None,
+            exclude_cols: Optional[List[str]] = None,
+            max_plots: Optional[int] = None,
             class_name: Optional[str] = None) -> None:
         """
         Generates and inserts a grid of Plotly box plots for all numeric columns in the provided DataFrame.
@@ -574,6 +590,11 @@ class Report:
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
             height (int, optional): The height of each box plot chart in pixels. Defaults to 300.
+            include_cols (Optional[List[str]], optional): A list of column names to include in the box
+            plots. If not provided, all numeric columns in the DataFrame will be used.
+            exclude_cols (Optional[List[str]], optional): A list of column names to exclude from the
+            box plots. If not provided, no columns will be excluded.
+            max_plots (Optional[int], optional): Maximum number of box plots to generate. If None, plot all available.
             class_name (Optional[str], optional): CSS class for the outer container div of each box plot card.
                                                 Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
 
@@ -584,6 +605,13 @@ class Report:
             class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
             
         numeric_cols = df.select_dtypes(include=["number"]).columns
+        if include_cols:
+            numeric_cols = include_cols
+        elif exclude_cols:
+            numeric_cols = [col for col in numeric_cols if col not in exclude_cols]
+        
+        if max_plots:
+            numeric_cols = numeric_cols[:max_plots]
 
         contents = ""
         for col in numeric_cols:
@@ -606,7 +634,11 @@ class Report:
 
         self.add_content(full_html)
     
-    def violin(self, df: pd.DataFrame, height: int = 300, class_name: Optional[str] = None) -> None:
+    def violin(self, df: pd.DataFrame, height: int = 300,
+               include_cols: Optional[List[str]] = None,
+               exclude_cols: Optional[List[str]] = None,
+               max_plots: Optional[int] = None,
+               class_name: Optional[str] = None) -> None:
         """
         Generates and inserts a grid of Plotly violin plots for all numeric columns in the provided DataFrame.
 
@@ -615,6 +647,11 @@ class Report:
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
             height (int, optional): The height of each violin plot chart in pixels. Defaults to 300.
+            include_cols (Optional[List[str]], optional): A list of column names to include in the violin
+            plots. If not provided, all numeric columns in the DataFrame will be used.
+            exclude_cols (Optional[List[str]], optional): A list of column names to exclude from the
+            violin plots. If not provided, no columns will be excluded.
+            max_plots (Optional[int], optional): Maximum number of violin plots to generate. If None, plot all available.
             class_name (Optional[str], optional): CSS class for the outer container div of each violin plot card.
                                                 Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
 
@@ -625,6 +662,13 @@ class Report:
             class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
             
         numeric_cols = df.select_dtypes(include=["number"]).columns
+        if include_cols:
+            numeric_cols = include_cols
+        elif exclude_cols:
+            numeric_cols = [col for col in numeric_cols if col not in exclude_cols]
+        
+        if max_plots:
+            numeric_cols = numeric_cols[:max_plots]
 
         contents = ""
         for col in numeric_cols:
