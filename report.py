@@ -385,7 +385,7 @@ class Report:
         self.add_content(full_html)
     
     def countplot(self, df: pd.DataFrame, title: Optional[str] = None,
-              height: int = 300, include_cols: Optional[List[str]] = None,
+              height: int = 400, include_cols: Optional[List[str]] = None,
               exclude_cols: Optional[List[str]] = None,
               max_plots: Optional[int] = None, max_categories: int = 20,
               class_name: Optional[str] = None) -> None:
@@ -439,15 +439,16 @@ class Report:
             # Create the count plot (bar chart)
             fig = px.bar(count_data, x=col, y='count', labels={'count': 'Frequency'})
             fig.update_layout(height=height, template="plotly_white",
-                            title=dict(font=dict(size=18, weight=500), xanchor="left", yanchor="top",
-                                        x=0, y=0.97, pad={"l": 10}),
+                            title=dict(font=dict(size=18, weight=500),
+                                       xanchor="left", yanchor="top",
+                                       x=0, y=0.97, pad={"l": 10}),
                             margin=dict(t=20, b=10, l=10, r=10))
             
             # Add the chart HTML to the content
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
-                    {fig.to_html(full_html=False, include_plotlyjs=True, config={"scrollZoom": True, "displayModeBar": False})}
+                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
                 </div>
             </div>
             """
