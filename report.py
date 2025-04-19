@@ -454,7 +454,7 @@ class Report:
                               title=dict(font=dict(size=18, weight=500),
                                          xanchor="left", yanchor="top",
                                          x=0, y=0.97, pad={"l": 10}),
-                              margin=dict(t=20, b=10, l=10, r=10))
+                              margin=dict(t=50, b=10, l=10, r=10))
             
             # Add the chart HTML to the content
             contents += f"""
