@@ -481,7 +481,7 @@ class Report:
               dunut_hole: float = 0.4,
               max_plots: Optional[int] = None, max_categories: int = 20,
               class_name: Optional[str] = None) -> None:
-       """
+        """
         Generates and inserts a grid of Plotly donut charts for all categorical columns in the provided DataFrame.
 
         For each categorical column, a donut chart is created showing the distribution of category frequencies as percentages.
