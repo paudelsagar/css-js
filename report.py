@@ -544,7 +544,7 @@ class Report:
 
         contents = ""
         for col in numeric_cols:
-            fig = px.histogram(df, x=col, bins=bins)
+            fig = px.histogram(df, x=col, nbins=bins)
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
