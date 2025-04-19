@@ -474,7 +474,93 @@ class Report:
 
         # Add the final content to your report
         self.add_content(full_html)
-    
+   
+    def donut(self, df: pd.DataFrame, title: Optional[str] = None,
+              height: int = 400, include_cols: Optional[List[str]] = None,
+              exclude_cols: Optional[List[str]] = None,
+              dunut_hole: float = 0.4,
+              max_plots: Optional[int] = None, max_categories: int = 20,
+              class_name: Optional[str] = None) -> None:
+       """
+        Generates and inserts a grid of Plotly donut charts for all categorical columns in the provided DataFrame.
+
+        For each categorical column, a donut chart is created showing the distribution of category frequencies as percentages.
+        The charts are embedded within styled HTML cards and arranged in a responsive grid layout within the report.
+
+        Args:
+            df (pd.DataFrame): The input DataFrame containing the data to visualize.
+            title (Optional[str]): Optional title displayed above the grid of charts.
+            height (int, optional): Height of each donut chart in pixels. Defaults to 400.
+            include_cols (Optional[List[str]], optional): A list of categorical column names to include in the plots.
+                If not provided, all categorical columns will be used.
+            exclude_cols (Optional[List[str]], optional): A list of categorical column names to exclude from the plots.
+            dunut_hole (float, optional): Size of the hole in the donut chart (0 for full pie, up to 1 for fully hollow). Defaults to 0.4.
+            max_plots (Optional[int], optional): Maximum number of donut charts to generate. If None, plots all available.
+            max_categories (int, optional): Maximum number of categories to display per chart. Others are excluded. Defaults to 20.
+            class_name (Optional[str], optional): CSS class for the outer container div of each chart card.
+                Controls layout responsiveness. Defaults to "col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs".
+
+        Returns:
+            None: The method injects the generated donut charts into the HTML report via `self.add_content`.
+        """
+        if not class_name:
+            class_name = "col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs"
+
+        title_html = f'<div class="card-header">{title}</div>' if title else ""
+
+        cat_cols = df.select_dtypes(include=["object", "category"]).columns
+        if include_cols:
+            cat_cols = include_cols
+        elif exclude_cols:
+            cat_cols = [col for col in cat_cols if col not in exclude_cols]
+
+        if max_plots:
+            cat_cols = cat_cols[:max_plots]
+
+        contents = ""
+        for col in cat_cols:
+            count_data = df[col].value_counts().reset_index()
+            count_data.columns = [col, 'count']
+
+            if len(count_data) > max_categories:
+                count_data = count_data.head(max_categories)
+
+            total_count = count_data['count'].sum()
+            count_data['percentage'] = (count_data['count'] / total_count) * 100
+
+            # Create a donut chart
+            fig = px.pie(count_data, names=col, values='count',
+                         hole=0.4, title=None)
+
+            fig.update_traces(
+                textinfo='percent',
+                hovertemplate=f'{col}: %{{label}}<br>Count: %{{value}}<br>Percentage: %{{percent}}'
+            )
+
+            fig.update_layout(
+                height=height,
+                template="plotly_white",
+                margin=dict(t=20, b=10, l=10, r=10),
+                showlegend=True
+            )
+
+            contents += f"""
+            <div class="{class_name}">
+                <div class="card">
+                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                </div>
+            </div>
+            """
+
+        full_html = f"""
+        <div class="row">
+            {title_html}
+            {contents}
+        </div>
+        """
+
+        self.add_content(full_html)
+
     def histogram(self, df: pd.DataFrame,
                   title: Optional[str] = None,
                   bins: Optional[int] = None,
