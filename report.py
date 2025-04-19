@@ -437,7 +437,7 @@ class Report:
             raise TypeError("fig must be a valid Plotly figure object (e.g., go.Figure)")
         
         fig.update_layout(template="plotly_white",
-                          title=dict(font=dict(size=20), xanchor="left", yanchor="top",
+                          title=dict(font=dict(size=18, weight=500), xanchor="left", yanchor="top",
                                      x=0, y=0.97, pad={"l": 10}))
 
         full_html = f"""
@@ -596,6 +596,8 @@ class Report:
         for col in numeric_cols:
             fig = px.histogram(df, x=col, nbins=bins)
             fig.update_layout(height=height, template="plotly_white",
+                              title=dict(font=dict(size=18, weight=500), xanchor="left", yanchor="top",
+                                     x=0, y=0.97, pad={"l": 10}),
                               margin=dict(t=20, b=10, l=10, r=10))
             contents += f"""
             <div class="{class_name}">
@@ -653,6 +655,8 @@ class Report:
         for col in numeric_cols:
             fig = px.box(df, y=col)
             fig.update_layout(height=height, template="plotly_white",
+                              title=dict(font=dict(size=18, weight=500), xanchor="left", yanchor="top",
+                                     x=0, y=0.97, pad={"l": 10}),
                               margin=dict(t=20, b=10, l=10, r=10))
             contents += f"""
             <div class="{class_name}">
@@ -710,6 +714,8 @@ class Report:
         for col in numeric_cols:
             fig = px.violin(df, y=col, box=True, points="outliers")
             fig.update_layout(height=height, template="plotly_white",
+                              title=dict(font=dict(size=18, weight=500), xanchor="left", yanchor="top",
+                                     x=0, y=0.97, pad={"l": 10}),
                               margin=dict(t=20, b=10, l=10, r=10))
             contents += f"""
             <div class="{class_name}">
