@@ -800,9 +800,7 @@ class Report:
         )
 
         # Combine title and chart grid
-        final_plot = alt.vconcat(title_chart, pairplot_fig).configure_view(
-            padding={"left": 10, "top": 0, "right": 0, "bottom": 0}
-        )
+        final_plot = alt.vconcat(title_chart, pairplot_fig)
 
         if return_html:
             # renderer: canvas, svg, png, json, none
