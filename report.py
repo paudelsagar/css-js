@@ -493,6 +493,39 @@ class Report:
         
         self.add_content(full_html)
     
+    def add_column(self, content: str, card: bool = True) -> None:
+        """
+        Wraps the given HTML content inside a styled column and card container,
+        then inserts it into the HTML report.
+
+        The structure follows a Bootstrap-like grid layout with a single column (`col-xs`)
+        wrapped in a `row` and styled using the `card` class.
+
+        Args:
+            content (str): The raw HTML content to embed inside the column layout.
+            card (bool, optional): Whether to wrap the content in a Bootstrap card container. Defaults to
+            `True`, which is the default behavior.
+
+        Returns:
+            None: The function modifies the report in-place by injecting formatted HTML via `self.add_content`.
+        """
+        
+        if card:
+            content += f"""
+            <div class="card">
+                {content}
+            </div>
+            """
+        
+        full_html = f"""
+        <div class="row">
+            <div class="col">
+                {content}
+            </div>
+        </div>
+        """
+        self.add_content(full_html)
+    
     def run_server(self, port: Optional[int] = None) -> None:
         """
         Launches a local HTTP server to serve the report HTML file.
