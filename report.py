@@ -51,7 +51,6 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 __version__ = "1.0.0"
-__author__ = "Sagar Paudel"
 
 # Configuration
 css_url = "https://raw.githubusercontent.com/paudelsagar/pyreport/refs/heads/main/css/report.css"
@@ -383,7 +382,8 @@ class Report:
             <div class="row">
                 <div class="col">
                     <div class="card">
-                        {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                        {fig.to_html(full_html=False, include_plotlyjs=True,
+                        config=plotly_config, div_id=f"plotly-{uuid.uuid4().hex}")}
                         <div class="card-description">
                             <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
                         </div>
@@ -394,7 +394,8 @@ class Report:
         else:
             full_html = f"""
             <div class="card">
-                {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                {fig.to_html(full_html=False, include_plotlyjs=True,
+                config=plotly_config, div_id=f"plotly-{uuid.uuid4().hex}")}
                 <div class="card-description">
                     <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
                 </div>
@@ -484,7 +485,8 @@ class Report:
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
-                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                    {fig.to_html(full_html=False, include_plotlyjs=True,
+                    config=plotly_config, div_id=f"plotly-{uuid.uuid4().hex}")}
                 </div>
             </div>
             """
@@ -579,7 +581,8 @@ class Report:
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
-                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                    {fig.to_html(full_html=False, include_plotlyjs=True,
+                    config=plotly_config, div_id=f"plotly-{uuid.uuid4().hex}")}
                 </div>
             </div>
             """
@@ -651,7 +654,8 @@ class Report:
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
-                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                    {fig.to_html(full_html=False, include_plotlyjs=True,
+                    config=plotly_config, div_id=f"plotly-{uuid.uuid4().hex}")}
                 </div>
             </div>
             """
@@ -723,7 +727,8 @@ class Report:
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
-                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                    {fig.to_html(full_html=False, include_plotlyjs=True,
+                    config=plotly_config, div_id=f"plotly-{uuid.uuid4().hex}")}
                 </div>
             </div>
             """
@@ -794,7 +799,8 @@ class Report:
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
-                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                    {fig.to_html(full_html=False, include_plotlyjs=True,
+                    config=plotly_config, div_id=f"plotly-{uuid.uuid4().hex}")}
                 </div>
             </div>
             """
