@@ -513,7 +513,7 @@ class Report:
         if card:
             content = f"""
             <div class="card">
-                <div class="overflow: auto;">
+                <div style="overflow: auto;">
                     {content}
                 </div>
             </div>
