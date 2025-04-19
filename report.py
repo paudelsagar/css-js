@@ -906,7 +906,7 @@ class Report:
                 max_plots: Optional[int] = None, height: int = 200, marker_radius: int = 2,
                 return_html: bool = False) -> Optional[str]:
         if not class_name:
-            class_name = 'col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs'
+            class_name = 'col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs-6'
 
         numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
         if include_cols:
