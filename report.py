@@ -814,3 +814,202 @@ class Report:
                                       embed_options={'renderer': 'png'})
 
         final_plot.show()
+        
+    def histoplot(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
+                  exclude_cols: Optional[List[str]] = None, columns_per_row: int = 4,
+                  max_plots: Optional[int] = None, width: int = 200, height: int = 150,
+                  bin_step: Optional[float] = None, return_html: bool = False) -> Optional[str]:
+        """
+        Generates a grid of histograms using Altair for each numerical feature in the input DataFrame.
+
+        Args:
+            df (pd.DataFrame): Input DataFrame containing data to visualize.
+            include_cols (Optional[List[str]], optional): Specific numeric columns to include. Defaults to None.
+            exclude_cols (Optional[List[str]], optional): Columns to exclude from plotting. Ignored if `include_cols` is provided. Defaults to None.
+            columns_per_row (int, optional): Number of histogram plots per row. Defaults to 6.
+            max_plots (Optional[int], optional): Maximum number of features to include. Useful for large datasets. Defaults to None.
+            width (int, optional): Width of each histogram in pixels. Defaults to 100.
+            height (int, optional): Height of each histogram in pixels. Defaults to 100.
+            bin_step (Optional[float], optional): Step size for binning. If None, Altair will use automatic binning. Defaults to None.
+            return_html (bool, optional): If True, returns the chart as HTML string. Otherwise displays in browser. Defaults to False.
+
+        Returns:
+            Optional[str]: HTML string if `return_html` is True; otherwise None.
+        """
+        numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
+        if include_cols:
+            numeric_cols = [col for col in numeric_cols if col in include_cols]
+        elif exclude_cols:
+            numeric_cols = [col for col in numeric_cols if col not in exclude_cols]
+
+        if max_plots:
+            numeric_cols = numeric_cols[:max_plots]
+
+        charts = []
+        for col in numeric_cols:
+            chart = alt.Chart(df).mark_bar(opacity=0.75).encode(
+                x=alt.X(col, bin=alt.Bin(step=bin_step) if bin_step else True,
+                        axis=alt.Axis(titleFontWeight='normal')),
+                y=alt.Y('count()', axis=alt.Axis(title='Count', titleFontWeight='normal'))
+            ).properties(
+                width=width,
+                height=height
+            )
+            charts.append(chart)
+
+        grid = alt.vconcat(*[
+            alt.hconcat(*charts[i:i + columns_per_row])
+            for i in range(0, len(charts), columns_per_row)
+        ])
+
+        title_chart = alt.Chart(pd.DataFrame({
+            'text': ['Histogram of Numerical Features']})).mark_text(
+            align='left', x=-50,
+            fontSize=18,
+            fontWeight=500
+        ).encode(
+            text='text:N'
+        ).properties(
+            width=columns_per_row * width,
+            height=30
+        )
+
+        final_plot = alt.vconcat(title_chart, grid)
+
+        if return_html:
+            return final_plot.to_html(fullhtml=False, requirejs=False, inline=False,
+                                      embed_options={'renderer': 'png'})
+
+        final_plot.show()
+    
+    def boxplot(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
+                exclude_cols: Optional[List[str]] = None, columns_per_row: int = 4,
+                max_plots: Optional[int] = None, width: int = 180, height: int = 150,
+                return_html: bool = False) -> Optional[str]:
+        """
+        Generates a grid of box plots using Altair for each numerical feature in the input DataFrame.
+
+        Args:
+            df (pd.DataFrame): Input DataFrame containing data to visualize.
+            include_cols (Optional[List[str]], optional): Specific numeric columns to include. Defaults to None.
+            exclude_cols (Optional[List[str]], optional): Columns to exclude from plotting. Ignored if `include_cols` is provided. Defaults to None.
+            columns_per_row (int, optional): Number of box plots per row. Defaults to 6.
+            max_plots (Optional[int], optional): Maximum number of features to include. Useful for large datasets. Defaults to None.
+            width (int, optional): Width of each box plot in pixels. Defaults to 100.
+            height (int, optional): Height of each box plot in pixels. Defaults to 100.
+            return_html (bool, optional): If True, returns the chart as an HTML string. Otherwise displays in browser. Defaults to False.
+
+        Returns:
+            Optional[str]: HTML string if `return_html` is True; otherwise None.
+        """
+        numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
+        if include_cols:
+            numeric_cols = [col for col in numeric_cols if col in include_cols]
+        elif exclude_cols:
+            numeric_cols = [col for col in numeric_cols if col not in exclude_cols]
+
+        if max_plots:
+            numeric_cols = numeric_cols[:max_plots]
+
+        charts = []
+        for col in numeric_cols:
+            box = alt.Chart(df).mark_boxplot(size=30).encode(
+                y=alt.Y(col, axis=alt.Axis(titleFontWeight='normal'))
+            ).properties(
+                width=width,
+                height=height
+            )
+            charts.append(box)
+
+        grid = alt.vconcat(*[
+            alt.hconcat(*charts[i:i + columns_per_row])
+            for i in range(0, len(charts), columns_per_row)
+        ])
+
+        title_chart = alt.Chart(pd.DataFrame({
+            'text': ['Boxplot of Numerical Features']})).mark_text(
+            align='left', x=-50,
+            fontSize=18,
+            fontWeight=500
+        ).encode(
+            text='text:N'
+        ).properties(
+            width=columns_per_row * width,
+            height=30
+        )
+
+        final_plot = alt.vconcat(title_chart, grid)
+
+        if return_html:
+            return final_plot.to_html(fullhtml=False, requirejs=False, inline=False,
+                                      embed_options={'renderer': 'png'})
+
+        final_plot.show()
+    
+    def densityplot(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
+                    exclude_cols: Optional[List[str]] = None, columns_per_row: int = 4,
+                    max_plots: Optional[int] = None, width: int = 150, height: int = 150,
+                    return_html: bool = False) -> Optional[str]:
+        """
+        Generates a grid of KDE-based density plots using Altair for numerical features in a DataFrame.
+
+        Args:
+            df (pd.DataFrame): Input DataFrame.
+            include_cols (Optional[List[str]], optional): Specific numeric columns to include. Defaults to None.
+            exclude_cols (Optional[List[str]], optional): Columns to exclude. Ignored if `include_cols` is provided. Defaults to None.
+            columns_per_row (int, optional): Number of plots per row. Defaults to 6.
+            max_plots (Optional[int], optional): Maximum number of features to plot. Defaults to None.
+            width (int, optional): Width of each plot. Defaults to 100.
+            height (int, optional): Height of each plot. Defaults to 100.
+            return_html (bool, optional): If True, returns the chart as HTML. Otherwise, displays it. Defaults to False.
+
+        Returns:
+            Optional[str]: HTML string if `return_html` is True; otherwise None.
+        """
+        numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
+        if include_cols:
+            numeric_cols = [col for col in numeric_cols if col in include_cols]
+        elif exclude_cols:
+            numeric_cols = [col for col in numeric_cols if col not in exclude_cols]
+
+        if max_plots:
+            numeric_cols = numeric_cols[:max_plots]
+
+        charts = []
+        for col in numeric_cols:
+            chart = alt.Chart(df).transform_density(
+                density=col,
+                as_=[col, 'density']
+            ).mark_area(opacity=0.6).encode(
+                x=alt.X(col, axis=alt.Axis(titleFontWeight='normal')),
+                y=alt.Y('density:Q', axis=alt.Axis(title='Density', titleFontWeight='normal'))
+            ).properties(
+                width=width,
+                height=height
+            )
+            charts.append(chart)
+
+        grid = alt.vconcat(*[
+            alt.hconcat(*charts[i:i + columns_per_row])
+            for i in range(0, len(charts), columns_per_row)
+        ])
+
+        title_chart = alt.Chart(pd.DataFrame({
+            'text': ['Density Plot of Numerical Features']})).mark_text(
+            align='left', x=-50,
+            fontSize=18,
+            fontWeight=500
+        ).encode(
+            text='text:N'
+        ).properties(
+            width=columns_per_row * width,
+            height=30
+        )
+
+        final_plot = alt.vconcat(title_chart, grid)
+
+        if return_html:
+            return final_plot.to_html(fullhtml=False, requirejs=False, inline=False,
+                                      embed_options={'renderer': 'svg'})
+        
+        final_plot.show()
