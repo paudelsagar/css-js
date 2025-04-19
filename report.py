@@ -545,7 +545,7 @@ class Report:
         contents = ""
         for col in numeric_cols:
             fig = px.histogram(df, x=col, bins=bins)
-            contents + = f"""
+            contents += f"""
             <div class="{class_name}">
                 <div class="card">
                     {fig.to_html(full_html=False, include_plotlyjs=True, config=config)}
