@@ -267,7 +267,7 @@ class Report:
     
     def add_dataframe(self, df: pd.DataFrame, title: Optional[str] = None,
                       max_rows: int = 20, max_height: int = 500,
-                      return_html: bool = False) -> Optional[str]:
+                      return_html: bool = False, add_row: bool = True) -> Optional[str]:
         """
         Add a pandas DataFrame to the HTML report as a styled card component.
     
@@ -277,6 +277,7 @@ class Report:
             max_rows (int, optional): Maximum number of rows to display in the HTML table. Defaults to 20.
             max_height (int, optional): Maximum height of the table container (scrolls if exceeded). Defaults to 500.
             return_html (bool, optional): If True, returns the HTML string instead of adding to report content. Defaults to False.
+            add_row (bool, optional): If True, adds a row to the report content. Defaults to True.
     
         Returns:
             Optional[str]: Rendered HTML string if return_html is True, else None.
@@ -293,23 +294,37 @@ class Report:
             f'<div class="card-header">{title}</div>'
             if title else ""
         )
-
-        # Combine the HTML template and the generated DataFrame table
-        full_html = f"""
-        <div class="row">
-            <div class="col">
-                <div class="card">
-                    {title_html}
-                    <div style="overflow: auto; max-height: {max_height}px;">
-                        {html_table}
-                    </div>
-                    <div class="card-description">
-                        <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
+        
+        if add_row:
+            # Combine the HTML template and the generated DataFrame table
+            full_html = f"""
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        {title_html}
+                        <div style="overflow: auto; max-height: {max_height}px;">
+                            {html_table}
+                        </div>
+                        <div class="card-description">
+                            <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        """
+            """
+        else:
+            full_html = f"""
+            <div class="card">
+                {title_html}
+                <div style="overflow: auto; max-height: {max_height}px;">
+                    {html_table}
+                </div>
+                <div class="card-description">
+                    <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
+                </div>
+            </div>
+            """
+            
         full_html = full_html.replace('\n', '').strip()
 
         if return_html:
@@ -317,14 +332,15 @@ class Report:
         
         self.add_content(full_html)
     
-    def add_plotly_figure(self, fig: PlotlyFigure, return_html: bool = False) -> Optional[str]:
+    def add_plotly_figure(self, fig: PlotlyFigure, return_html: bool = False,
+                          add_row: bool = True) -> Optional[str]:
         """
         Adds a Plotly figure to the report in a styled card layout.
     
         Args:
             fig (BaseFigure): A valid Plotly figure (e.g., go.Figure).
-            return_html (bool, optional): If True, returns the HTML string instead of writing it to the file.
-                                          Defaults to False.
+            return_html (bool, optional): If True, returns the HTML string instead of writing it to the file. Defaults to False.
+            add_row (bool, optional): If True, adds the figure in a row layout. Defaults to True.
     
         Returns:
             Optional[str]: The generated HTML string if `return_html` is True, otherwise None.
@@ -340,18 +356,28 @@ class Report:
                           title=dict(font=dict(size=18, weight=500), xanchor="left", yanchor="top",
                                      x=0, y=0.97, pad={"l": 10}))
 
-        full_html = f"""
-        <div class="row">
-            <div class="col">
-                <div class="card">
-                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
-                    <div class="card-description">
-                        <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
+        if add_row:
+            full_html = f"""
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                        <div class="card-description">
+                            <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        """
+            """
+        else:
+            full_html = f"""
+            <div class="card">
+                {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                <div class="card-description">
+                    <button class="toggle-btn" onclick="openModal(this)" data-details="">Explaination</button>
+                </div>
+            </div>
+            """
 
         if return_html:
             return full_html
