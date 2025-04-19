@@ -385,9 +385,10 @@ class Report:
         self.add_content(full_html)
     
     def countplot(self, df: pd.DataFrame, title: Optional[str] = None,
-                  height: int = 300, include_cols: Optional[List[str]] = None,
-                  exclude_cols: Optional[List[str]] = None,
-                  max_plots: Optional[int] = None, class_name: Optional[str] = None) -> None:
+              height: int = 300, include_cols: Optional[List[str]] = None,
+              exclude_cols: Optional[List[str]] = None,
+              max_plots: Optional[int] = None, max_categories: int = 20,
+              class_name: Optional[str] = None) -> None:
         """
         Generates and inserts a grid of Plotly count plots (bar plots) for all categorical columns in the provided DataFrame.
 
@@ -400,20 +401,21 @@ class Report:
             include_cols (Optional[List[str]], optional): A list of column names to include in the count plots. If not provided, all categorical columns will be used.
             exclude_cols (Optional[List[str]], optional): A list of column names to exclude from the count plots. If not provided, no columns will be excluded.
             max_plots (Optional[int], optional): Maximum number of count plots to generate. If None, plot all available.
-            class_name (Optional[str], optional): CSS class for the outer container div of each count plot card. Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
+            max_categories (int, optional): Maximum number of categories to display in each count plot. Defaults to 20.
+            class_name (Optional[str], optional): CSS class for the outer container div of each count plot card. Defaults to "col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs".
 
         Returns:
             None: The function modifies the HTML report by injecting new content via `self.add_content`.
         """
         if not class_name:
-            class_name = "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs"
+            class_name = "col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs"
         
         # Conditionally add title only if provided
         title_html = (
             f'<div class="card-header">{title}</div>'
             if title else ""
         )
-                
+                    
         # Identify categorical columns
         cat_cols = df.select_dtypes(include=["object", "category"]).columns
         if include_cols:
@@ -429,20 +431,23 @@ class Report:
             # Calculate frequency for each category
             count_data = df[col].value_counts().reset_index()
             count_data.columns = [col, 'count']
-            
+
+            # Limit the categories to the top 'max_categories' if needed
+            if len(count_data) > max_categories:
+                count_data = count_data.head(max_categories)
+
             # Create the count plot (bar chart)
-            fig = px.bar(count_data, x=col, y='count', title=f"Count Plot: {col}",
-                         labels={col: 'Category', 'count': 'Frequency'})
+            fig = px.bar(count_data, x=col, y='count', labels={'count': 'Frequency'})
             fig.update_layout(height=height, template="plotly_white",
-                              title=dict(font=dict(size=18, weight=500), xanchor="left", yanchor="top",
-                                         x=0, y=0.97, pad={"l": 10}),
-                              margin=dict(t=20, b=10, l=10, r=10))
+                            title=dict(font=dict(size=18, weight=500), xanchor="left", yanchor="top",
+                                        x=0, y=0.97, pad={"l": 10}),
+                            margin=dict(t=20, b=10, l=10, r=10))
             
             # Add the chart HTML to the content
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
-                    {fig.to_html(full_html=False, include_plotlyjs=True, config=plotly_config)}
+                    {fig.to_html(full_html=False, include_plotlyjs=True, config={"scrollZoom": True, "displayModeBar": False})}
                 </div>
             </div>
             """
