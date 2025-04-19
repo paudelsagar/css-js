@@ -522,7 +522,7 @@ class Report:
                 httpd.shutdown()
     
     def histogram(self, df: pd.DataFrame, bins: Optional[int] = None,
-                  class_name: Optional[str] = None) -> None:
+                  height: int = 300, class_name: Optional[str] = None) -> None:
         """
         Generates and inserts a grid of Plotly histogram charts for all numeric columns in the provided DataFrame.
 
@@ -531,6 +531,7 @@ class Report:
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
             bins (Optional[int], optional): Number of bins for the histograms. Defaults to Plotly's auto-binning.
+            height (int, optional): The height of each histogram chart in pixels. Defaults to 300.
             class_name (Optional[str], optional): CSS class for the outer container div of each histogram card.
                                                 Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
 
@@ -545,6 +546,8 @@ class Report:
         contents = ""
         for col in numeric_cols:
             fig = px.histogram(df, x=col, nbins=bins)
+            fig.update_layout(height=height, template="plotly_white",
+                              margin=dict(t=10, b=20, l=10, r=10))
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
@@ -564,7 +567,8 @@ class Report:
 
         self.add_content(full_html)
         
-    def box(self, df: pd.DataFrame, class_name: Optional[str] = None) -> None:
+    def box(self, df: pd.DataFrame, height: int = 300,
+            class_name: Optional[str] = None) -> None:
         """
         Generates and inserts a grid of Plotly box plots for all numeric columns in the provided DataFrame.
 
@@ -572,6 +576,7 @@ class Report:
 
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
+            height (int, optional): The height of each box plot chart in pixels. Defaults to 300.
             class_name (Optional[str], optional): CSS class for the outer container div of each box plot card.
                                                 Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
 
@@ -586,6 +591,8 @@ class Report:
         contents = ""
         for col in numeric_cols:
             fig = px.box(df, y=col)
+            fig.update_layout(height=height, template="plotly_white",
+                              margin=dict(t=10, b=10, l=10, r=20))
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
@@ -605,7 +612,7 @@ class Report:
 
         self.add_content(full_html)
     
-    def violin(self, df: pd.DataFrame, class_name: Optional[str] = None) -> None:
+    def violin(self, df: pd.DataFrame, height: int = 300, class_name: Optional[str] = None) -> None:
         """
         Generates and inserts a grid of Plotly violin plots for all numeric columns in the provided DataFrame.
 
@@ -613,6 +620,7 @@ class Report:
 
         Args:
             df (pd.DataFrame): The input DataFrame containing the data to visualize.
+            height (int, optional): The height of each violin plot chart in pixels. Defaults to 300.
             class_name (Optional[str], optional): CSS class for the outer container div of each violin plot card.
                                                 Defaults to "col-xl-3 col-lg-4 col-md-6 col-sm-6 col-xs".
 
@@ -627,6 +635,8 @@ class Report:
         contents = ""
         for col in numeric_cols:
             fig = px.violin(df, y=col, box=True, points="outliers")
+            fig.update_layout(height=height, template="plotly_white",
+                              margin=dict(t=10, b=10, l=10, r=20))
             contents += f"""
             <div class="{class_name}">
                 <div class="card">
