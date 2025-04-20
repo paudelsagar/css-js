@@ -994,7 +994,7 @@ class Report:
                     max_plots: Optional[int] = None,
                     height: int = 250, return_html: bool = False) -> Optional[str]:
         if not class_name:
-            class_name = 'col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs-6'
+            class_name = 'col-xl-3 col-lg-3 col-md-4 col-sm-6 col-xs-6'
             
         numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
 
@@ -1020,8 +1020,7 @@ class Report:
                     Highcharts.chart('{container_id}', {{
                         chart: {{
                             height: {height},
-                            margin: [10, 10, 50, 20],
-                            spacing: [0, 0, 0, 0]
+                            spacing: [0, 10, 0, 0]
                         }},
                         title: {{
                             text: null
@@ -1033,7 +1032,7 @@ class Report:
                             alignTicks: false
                         }}, {{
                             title: {{
-                                text: 'Bell curve'
+                                text: null
                             }},
                             alignTicks: false,
                             opposite: true
@@ -1041,7 +1040,7 @@ class Report:
                         yAxis: [{{
                             title: {{ text: '{col}' }}
                         }}, {{
-                            title: {{ text: 'Bell curve' }},
+                            title: {{ text: null }},
                             opposite: true
                         }}],
                         legend: {{ enabled: false }},
@@ -1053,7 +1052,7 @@ class Report:
                             baseSeries: 1,
                             zIndex: -1
                         }}, {{
-                            name: '{col} Data',
+                            name: 'Data',
                             type: 'scatter',
                             data: {js_data},
                             marker: {{
