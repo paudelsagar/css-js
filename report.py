@@ -1024,7 +1024,7 @@ class Report:
                             spacing: [0, 0, 0, 0]
                         }},
                         title: {{
-                            text: '{col} Bell Curve'
+                            text: null
                         }},
                         xAxis: [{{
                             title: {{
@@ -1044,6 +1044,7 @@ class Report:
                             title: {{ text: 'Bell curve' }},
                             opposite: true
                         }}],
+                        legend: {{ enabled: false }},
                         series: [{{
                             name: 'Bell curve',
                             type: 'bellcurve',
