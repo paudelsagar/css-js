@@ -901,10 +901,10 @@ class Report:
                                       fullhtml=False, requirejs=False, inline=False,
                                       embed_options={'renderer': 'png'})
     
-    def scatter_matrix(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
-                exclude_cols: Optional[List[str]] = None, class_name: Optional[str] = None,
-                max_plots: Optional[int] = None, height: int = 200, marker_radius: int = 2,
-                return_html: bool = False) -> Optional[str]:
+    def hc_scatter(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
+                       exclude_cols: Optional[List[str]] = None, class_name: Optional[str] = None,
+                       max_plots: Optional[int] = None, height: int = 200, marker_radius: int = 2,
+                       return_html: bool = False) -> Optional[str]:
         if not class_name:
             class_name = 'col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs-6'
 
@@ -923,7 +923,7 @@ class Report:
             pair_combos = pair_combos[:max_plots]
 
         cards = []
-        for idx, (x, y) in enumerate(pair_combos):
+        for _, (x, y) in enumerate(pair_combos):
             container_id = f"highchart-{uuid.uuid4().hex}"
             data = df[[x, y]].dropna().values.tolist()
             js_data = json.dumps(data)
@@ -982,6 +982,97 @@ class Report:
 
         full_html = """
         <script src="https://code.highcharts.com/highcharts.js"></script>
+        <div class="row">
+        """ + "\n".join(cards) + "</div>"
+
+        self._render_in_notebook(full_html)
+        if return_html:
+            return full_html
+    
+    def hc_distribution(self, df: pd.DataFrame, include_cols: Optional[List[str]] = None,
+                    exclude_cols: Optional[List[str]] = None, class_name: Optional[str] = None,
+                    max_plots: Optional[int] = None,
+                    height: int = 250, return_html: bool = False) -> Optional[str]:
+        if not class_name:
+            class_name = 'col-xl-2 col-lg-3 col-md-4 col-sm-6 col-xs-6'
+            
+        numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
+
+        if include_cols:
+            numeric_cols = [col for col in numeric_cols if col in include_cols]
+        elif exclude_cols:
+            numeric_cols = [col for col in numeric_cols if col not in exclude_cols]
+            
+        if max_plots:
+            numeric_cols = numeric_cols[:max_plots]
+
+        cards = []
+        for col in numeric_cols:
+            data = df[col].dropna().tolist()
+            js_data = json.dumps(data)
+            container_id = f"highchart-{uuid.uuid4().hex}"
+
+            js_code = f"""
+            <div class="{class_name}">
+                <div class="card">
+                    <div id="{container_id}" style="width: 100%;"></div>
+                    <script>
+                    Highcharts.chart('{container_id}', {{
+                        chart: {{
+                            height: {height},
+                            margin: [10, 10, 50, 20],
+                            spacing: [0, 0, 0, 0]
+                        }},
+                        title: {{
+                            text: '{col} Bell Curve'
+                        }},
+                        xAxis: [{{
+                            title: {{
+                                text: '{col}'
+                            }},
+                            alignTicks: false
+                        }}, {{
+                            title: {{
+                                text: 'Bell curve'
+                            }},
+                            alignTicks: false,
+                            opposite: true
+                        }}],
+                        yAxis: [{{
+                            title: {{ text: '{col}' }}
+                        }}, {{
+                            title: {{ text: 'Bell curve' }},
+                            opposite: true
+                        }}],
+                        series: [{{
+                            name: 'Bell curve',
+                            type: 'bellcurve',
+                            xAxis: 1,
+                            yAxis: 1,
+                            baseSeries: 1,
+                            zIndex: -1
+                        }}, {{
+                            name: '{col} Data',
+                            type: 'scatter',
+                            data: {js_data},
+                            marker: {{
+                                radius: 1.5
+                            }},
+                            accessibility: {{
+                                exposeAsGroupOnly: true
+                            }}
+                        }}],
+                        credits: {{ enabled: false }}
+                    }});
+                    </script>
+                </div>
+            </div>
+            """
+            cards.append(js_code)
+
+        full_html = """
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/histogram-bellcurve.js"></script>
         <div class="row">
         """ + "\n".join(cards) + "</div>"
 
